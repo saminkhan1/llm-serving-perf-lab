@@ -14,7 +14,10 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="lsp", description="LLM serving perf lab CLI.")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
-    validate_parser = subparsers.add_parser("validate-config", help="Validate a single YAML config.")
+    validate_parser = subparsers.add_parser(
+        "validate-config",
+        help="Validate a single YAML config.",
+    )
     validate_parser.add_argument("path", type=Path)
 
     subparsers.add_parser("validate-examples", help="Validate repo example configs.")

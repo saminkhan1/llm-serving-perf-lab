@@ -1,12 +1,11 @@
 from __future__ import annotations
 
 import json
-from pathlib import Path
 import unittest
+from pathlib import Path
 
 from lsp.artifacts.models import validate_artifact_dir
 from lsp.config.models import ValidationError
-
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
@@ -14,7 +13,10 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 class ArtifactValidationTests(unittest.TestCase):
     def test_missing_metrics_file_fails(self) -> None:
         run_dir = REPO_ROOT / "tests" / "fixtures" / "invalid_artifact_missing_metrics"
-        with self.assertRaises(ValidationError):
+        with self.assertRaisesRegex(
+            ValidationError,
+            "artifact directory missing required files: metrics.parquet",
+        ):
             validate_artifact_dir(run_dir)
 
     def test_valid_fixture_artifact_passes(self) -> None:

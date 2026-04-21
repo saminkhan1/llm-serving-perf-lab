@@ -51,3 +51,7 @@ markers = [
 python_version = "3.12"
 strict = true
 packages = ["lsp"]
+
+[[tool.mypy.overrides]]
+module = ["yaml"]
+ignore_missing_imports = true

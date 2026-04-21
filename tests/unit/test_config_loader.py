@@ -1,11 +1,10 @@
 from __future__ import annotations
 
-from pathlib import Path
 import unittest
+from pathlib import Path
 
 from lsp.config.loader import load_config, validate_example_configs
 from lsp.config.models import ValidationError
-
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 

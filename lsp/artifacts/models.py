@@ -46,9 +46,9 @@ def validate_artifact_dir(run_dir: Path) -> ArtifactBundle:
         "system_info.json",
         "scorecard.json",
         "report.md",
-        "requests.jsonl",
-        "responses.jsonl",
-        "metrics.jsonl",
+        "requests.parquet",
+        "responses.parquet",
+        "metrics.parquet",
     ]
     missing = [name for name in required if not (run_dir / name).exists()]
     if missing:
@@ -68,9 +68,9 @@ def validate_artifact_dir(run_dir: Path) -> ArtifactBundle:
     if not metadata_raw.get("repro_command"):
         raise ValidationError("artifact repro_command must be non-empty")
     if metadata_raw.get("status") == "success":
-        metrics_lines = (run_dir / "metrics.jsonl").read_text(encoding="utf-8").strip()
+        metrics_lines = (run_dir / "metrics.parquet").read_text(encoding="utf-8").strip()
         if not metrics_lines:
-            raise ValidationError("successful run must write non-empty metrics.jsonl")
+            raise ValidationError("successful run must write non-empty metrics.parquet")
 
     return ArtifactBundle(
         run_dir=run_dir,

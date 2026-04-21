@@ -8,7 +8,13 @@ class ValidationError(ValueError):
     """Raised when repo configs fail schema validation."""
 
 
-def _require_keys(payload: dict[str, Any], *, required: set[str], allowed: set[str], context: str) -> None:
+def _require_keys(
+    payload: dict[str, Any],
+    *,
+    required: set[str],
+    allowed: set[str],
+    context: str,
+) -> None:
     missing = sorted(required - payload.keys())
     unknown = sorted(payload.keys() - allowed)
     if missing:
@@ -26,7 +32,7 @@ def _ensure_positive_int(value: Any, context: str) -> int:
     _ensure_type(value, int, context)
     if value <= 0:
         raise ValidationError(f"{context} must be > 0")
-    return value
+    return int(value)
 
 
 def _ensure_non_negative_number(value: Any, context: str) -> float:
@@ -59,8 +65,26 @@ class BackendConfig(ConfigDocument):
         if backend == "vllm":
             _require_keys(
                 payload,
-                required={"backend", "mode", "model_id", "host", "port", "launch", "metrics", "artifacts"},
-                allowed={"backend", "mode", "model_id", "host", "port", "launch", "metrics", "artifacts"},
+                required={
+                    "backend",
+                    "mode",
+                    "model_id",
+                    "host",
+                    "port",
+                    "launch",
+                    "metrics",
+                    "artifacts",
+                },
+                allowed={
+                    "backend",
+                    "mode",
+                    "model_id",
+                    "host",
+                    "port",
+                    "launch",
+                    "metrics",
+                    "artifacts",
+                },
                 context="vllm backend config",
             )
             _ensure_type(payload["host"], str, "vllm backend config.host")
@@ -71,8 +95,24 @@ class BackendConfig(ConfigDocument):
         elif backend == "sglang":
             _require_keys(
                 payload,
-                required={"backend", "mode", "model_id", "router", "workers", "transfer", "artifacts"},
-                allowed={"backend", "mode", "model_id", "router", "workers", "transfer", "artifacts"},
+                required={
+                    "backend",
+                    "mode",
+                    "model_id",
+                    "router",
+                    "workers",
+                    "transfer",
+                    "artifacts",
+                },
+                allowed={
+                    "backend",
+                    "mode",
+                    "model_id",
+                    "router",
+                    "workers",
+                    "transfer",
+                    "artifacts",
+                },
                 context="sglang backend config",
             )
             _ensure_type(payload["router"], dict, "sglang backend config.router")
@@ -132,12 +172,31 @@ class WorkloadConfig(ConfigDocument):
                 },
                 context="synthetic workload config",
             )
-            _ensure_positive_int(payload["request_count"], "synthetic workload config.request_count")
+            _ensure_positive_int(
+                payload["request_count"],
+                "synthetic workload config.request_count",
+            )
         elif kind == "workload_shaped":
             _require_keys(
                 payload,
-                required={"workload_id", "seed", "kind", "mixture", "arrival", "prefix_reuse", "notes"},
-                allowed={"workload_id", "seed", "kind", "mixture", "arrival", "prefix_reuse", "notes"},
+                required={
+                    "workload_id",
+                    "seed",
+                    "kind",
+                    "mixture",
+                    "arrival",
+                    "prefix_reuse",
+                    "notes",
+                },
+                allowed={
+                    "workload_id",
+                    "seed",
+                    "kind",
+                    "mixture",
+                    "arrival",
+                    "prefix_reuse",
+                    "notes",
+                },
                 context="workload_shaped workload config",
             )
             mixture = payload["mixture"]
@@ -195,7 +254,10 @@ class ThresholdConfig(ConfigDocument):
         for metric_name, values in metrics.items():
             _ensure_type(values, dict, f"threshold config.metrics.{metric_name}")
             for key, raw_value in values.items():
-                _ensure_non_negative_number(raw_value, f"threshold config.metrics.{metric_name}.{key}")
+                _ensure_non_negative_number(
+                    raw_value,
+                    f"threshold config.metrics.{metric_name}.{key}",
+                )
         threshold_set_id = payload["threshold_set_id"]
         _ensure_type(threshold_set_id, str, "threshold config.threshold_set_id")
         return cls(threshold_set_id=threshold_set_id, resolved=payload)

@@ -32,14 +32,22 @@ def _git_commit(repo_root: Path) -> tuple[str, bool]:
     return commit, dirty
 
 
-def _build_fake_rows(workload: WorkloadConfig) -> tuple[list[dict[str, object]], list[dict[str, object]], list[dict[str, object]]]:
+def _build_fake_rows(
+    workload: WorkloadConfig,
+) -> tuple[
+    list[dict[str, object]],
+    list[dict[str, object]],
+    list[dict[str, object]],
+]:
     row_count = int(workload.resolved.get("request_count", 3))
     row_count = min(row_count, 5)
     requests: list[dict[str, object]] = []
     responses: list[dict[str, object]] = []
     metrics: list[dict[str, object]] = []
     for index in range(row_count):
-        prompt_hash = sha256(f"{workload.workload_id}:{workload.seed}:{index}".encode("utf-8")).hexdigest()[:16]
+        prompt_hash = sha256(
+            f"{workload.workload_id}:{workload.seed}:{index}".encode("utf-8")
+        ).hexdigest()[:16]
         requests.append(
             {
                 "request_id": f"req-{index:03d}",

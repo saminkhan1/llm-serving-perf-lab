@@ -5,7 +5,7 @@ from pathlib import Path
 
 from lsp.config.models import ValidationError
 
-ARTIFACT_SCHEMA_VERSION = "m0.v1"
+ARTIFACT_SCHEMA_VERSION = "synthetic.v1"
 
 
 @dataclass(frozen=True)

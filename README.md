@@ -2,8 +2,8 @@
 
 Compact LLM serving performance lab focused on reproducibility, artifact quality, and hiring-signal-first systems work.
 
-Current status: M0 foundation is complete.
-This repo currently provides the validated scaffold for future benchmark work: config schemas, artifact schema, CLI, and a clearly labeled synthetic fake-run path.
+Current status: M1 deterministic workload generation plus a dry-run benchmark harness is complete.
+This repo now provides validated workload configs, seeded synthetic request generation, artifact writing, and clearly labeled dry-run and fake-run paths.
 It does not yet contain real vLLM or SGLang benchmark results, so it should be shared as an in-progress open-source build log, not as a finished performance portfolio.
 
 ## Why this repo exists
@@ -17,11 +17,12 @@ The goal is to build a small but serious inference-performance lab that eventual
 
 ## What exists today
 
-M0 foundation is implemented and validated:
+Current implemented scope:
 - Python package and CLI scaffold (`lsp`)
 - strict YAML config validation for backend, workload, policy, threshold, and experiment configs
 - artifact bundle writer plus validation checks
-- synthetic fake-run path for smoke testing repo wiring
+- deterministic workload generation for M1 workload families
+- synthetic fake-run and dry-run benchmark paths for smoke testing repo wiring
 - unit and smoke tests
 - example configs for future milestones
 
@@ -46,14 +47,12 @@ Setup:
 make install
 ```
 
-Verify the current M0 state:
+Verify the current M1 state:
 
 ```bash
-make verify-m0
+make verify-m1
 make smoke
-uv run lsp fake-run \
-  --backend-config configs/backends/vllm_dev.yaml \
-  --workload-config configs/workloads/chat_short.yaml
+make reproduce RUN=m1 REPRO_RUN_ID=demo-m1
 ```
 
 Validate a generated artifact directory:
@@ -62,12 +61,29 @@ Validate a generated artifact directory:
 uv run lsp validate-artifact artifacts/<run_id>
 ```
 
+Reproduce the current synthetic milestones with stable aliases:
+
+```bash
+make reproduce RUN=m0 REPRO_RUN_ID=demo-m0
+make reproduce RUN=m1 REPRO_RUN_ID=demo-m1
+make reproduce RUN=configs/workloads/sharegpt_like.yaml REPRO_RUN_ID=demo-sharegpt
+```
+
+`make reproduce` is intentionally limited to the current M0/M1 synthetic paths.
+It does not run a real backend and must not be presented as measured M2+ evidence.
+
 ## CLI
 
 ```bash
 uv run lsp --help
 uv run lsp validate-config configs/backends/vllm_dev.yaml
 uv run lsp validate-examples
+uv run lsp run \
+  --backend-config configs/backends/vllm_dev.yaml \
+  --workload-config configs/workloads/mixed_short_long.yaml \
+  --output-dir artifacts \
+  --run-id demo-dry-run \
+  --dry-run
 uv run lsp fake-run \
   --backend-config configs/backends/vllm_dev.yaml \
   --workload-config configs/workloads/chat_short.yaml \
@@ -89,7 +105,7 @@ A successful run artifact is expected to contain:
 - `metrics.parquet`
 - `plots/`
 
-Note: in M0, the fake-run path writes deterministic JSON rows into `.parquet`-named files only to exercise the artifact contract. This is synthetic scaffolding, not a real data format claim.
+Note: the M0 fake-run path and the M1 `run --dry-run` path both write deterministic JSON rows into `.parquet`-named files only to exercise the artifact contract. These are synthetic scaffolding paths, not a real parquet-format claim or real benchmark result.
 
 ## Development checks
 
@@ -98,7 +114,7 @@ make lint
 make format-check
 make typecheck
 make test
-make verify-m0
+make verify-m1
 ```
 
 ## Repository layout
@@ -112,15 +128,15 @@ make verify-m0
 ## Roadmap
 
 Planned execution order lives in `docs/03-milestones.md`.
-The next work order after M0 is M1: deterministic workload generation plus benchmark-harness artifact writing.
+The next work order after M1 is M2: real vLLM integration plus official metrics ingestion.
 
 ## Public-sharing guidance
 
 If you post progress publicly right now, keep the framing honest:
 - this is an open-source inference-performance lab in progress
-- M0 foundation is complete and validated
+- deterministic synthetic workload generation and artifact-writing harnesses are complete
 - no real benchmark claims are being made yet
-- measured findings will start once real backend integration lands
+- measured findings start only once real backend integration lands in M2
 
 ## License
 

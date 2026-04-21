@@ -1,0 +1,28 @@
+experiment_id: impossible_budget
+
+baseline:
+  backend_config: configs/backends/sglang_pd_single_node.yaml
+  workload_config: configs/workloads/sharegpt_like.yaml
+
+objective:
+  name: minimize_p95_subject_to_throughput_floor
+  primary_metric: p95_latency_ms
+  direction: min
+
+search_space:
+  explicit_candidates:
+    - name: candidate_a
+      delta:
+        prefill_workers: 1
+        decode_workers: 1
+
+budget:
+  max_runs: 2
+  max_wall_clock_minutes: 30
+  max_consecutive_failures: 3
+
+approval_policy:
+  default: allow_with_log
+
+reporting:
+  write_markdown_summary: true

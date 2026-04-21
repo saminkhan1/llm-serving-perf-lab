@@ -4,7 +4,7 @@ import json
 import unittest
 from pathlib import Path
 
-from lsp.artifacts.models import validate_artifact_dir
+from lsp.artifacts.models import ARTIFACT_SCHEMA_VERSION, validate_artifact_dir
 from lsp.config.models import ValidationError
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -25,6 +25,7 @@ class ArtifactValidationTests(unittest.TestCase):
         self.assertEqual(bundle.metadata.run_id, "fixture-run")
         payload = json.loads((run_dir / "run.json").read_text(encoding="utf-8"))
         self.assertEqual(payload["status"], "success")
+        self.assertEqual(payload["schema_version"], ARTIFACT_SCHEMA_VERSION)
 
 
 if __name__ == "__main__":

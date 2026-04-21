@@ -1,0 +1,24 @@
+workload_id: bursty_chat
+seed: 23
+kind: synthetic
+request_count: 96
+
+arrival:
+  pattern: bursty_poisson
+  base_rate_per_second: 1.2
+  burst_multiplier: 4.0
+  burst_duration_seconds: 12
+  burst_every_seconds: 40
+
+prompt_tokens:
+  distribution: lognormal
+  median: 220
+  p95: 520
+
+output_tokens:
+  distribution: lognormal
+  median: 120
+  p95: 280
+
+prefix_reuse:
+  enabled: false

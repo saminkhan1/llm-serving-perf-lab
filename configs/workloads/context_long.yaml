@@ -1,0 +1,21 @@
+workload_id: context_long
+seed: 11
+kind: synthetic
+request_count: 64
+
+arrival:
+  distribution: poisson
+  rate_per_second: 0.6
+
+prompt_tokens:
+  distribution: lognormal
+  median: 4096
+  p95: 8192
+
+output_tokens:
+  distribution: lognormal
+  median: 256
+  p95: 640
+
+prefix_reuse:
+  enabled: false

@@ -1,0 +1,28 @@
+workload_id: mixed_short_long
+seed: 13
+kind: workload_shaped
+request_count: 72
+
+mixture:
+  - name: short_turn
+    weight: 0.7
+    prompt_tokens_median: 160
+    prompt_tokens_p95: 400
+    output_tokens_median: 80
+    output_tokens_p95: 160
+  - name: long_turn
+    weight: 0.3
+    prompt_tokens_median: 2200
+    prompt_tokens_p95: 4800
+    output_tokens_median: 220
+    output_tokens_p95: 520
+
+arrival:
+  distribution: poisson
+  rate_per_second: 1.5
+
+prefix_reuse:
+  enabled: false
+
+notes:
+  - Deterministic synthetic mixture of short and long requests for M1 replay checks.

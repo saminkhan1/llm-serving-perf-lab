@@ -1,0 +1,7 @@
+threshold_set_id: bad_enum
+comparison_mode: sideways
+
+metrics:
+  p95_latency_ms:
+    warn_if_increase_gt_pct: 5
+    fail_if_increase_gt_pct: 12

@@ -6,6 +6,7 @@ import sys
 from pathlib import Path
 
 from lsp.artifacts.models import validate_artifact_dir
+from lsp.benchmark_runner import run_benchmark
 from lsp.config.loader import load_config, validate_example_configs
 from lsp.fake_run import run_fake_benchmark
 
@@ -30,6 +31,23 @@ def build_parser() -> argparse.ArgumentParser:
     fake_run_parser.add_argument("--workload-config", type=Path, required=True)
     fake_run_parser.add_argument("--output-dir", type=Path, default=Path("artifacts"))
     fake_run_parser.add_argument("--run-id", type=str, default=None)
+
+    run_parser = subparsers.add_parser(
+        "run",
+        help="Run the deterministic M1 benchmark harness in dry-run mode.",
+    )
+    run_parser.add_argument("--backend-config", type=Path, required=True)
+    run_parser.add_argument("--workload-config", type=Path, required=True)
+    run_parser.add_argument("--output-dir", type=Path, default=Path("artifacts"))
+    run_parser.add_argument("--run-id", type=str, default=None)
+    run_parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help=(
+            "Use the synthetic M1 harness path. "
+            "Real backend integration is not available until M2."
+        ),
+    )
 
     validate_artifact_parser = subparsers.add_parser(
         "validate-artifact", help="Validate an emitted artifact directory."
@@ -60,6 +78,18 @@ def main(argv: list[str] | None = None) -> int:
             output_dir=args.output_dir,
             run_id=args.run_id,
             argv=argv or sys.argv[1:],
+        )
+        print(str(bundle.run_dir))
+        return 0
+
+    if args.command == "run":
+        bundle = run_benchmark(
+            backend_config_path=args.backend_config,
+            workload_config_path=args.workload_config,
+            output_dir=args.output_dir,
+            run_id=args.run_id,
+            argv=argv or sys.argv[1:],
+            dry_run=args.dry_run,
         )
         print(str(bundle.run_dir))
         return 0

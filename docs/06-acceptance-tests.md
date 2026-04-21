@@ -132,4 +132,10 @@ Any result used in applications must be reproducible through a stable command su
 make reproduce RUN=<run_id or config>
 ```
 
+For the current M0/M1 synthetic state, the stable baseline commands are:
+```bash
+make reproduce RUN=m0
+make reproduce RUN=m1
+```
+
 If a result cannot be reproduced from repo state and stored artifacts, it does not count.

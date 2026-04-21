@@ -1,0 +1,21 @@
+workload_id: chat_short
+seed: 19
+kind: synthetic
+request_count: 500
+
+arrival:
+  distribution: poisson
+  rate_per_second: 2.0
+
+prompt_tokens:
+  distribution: lognormal
+  median: 180
+  p95: 420
+
+output_tokens:
+  distribution: lognormal
+  median: 96
+  p95: 192
+
+prefix_reuse:
+  enabled: false

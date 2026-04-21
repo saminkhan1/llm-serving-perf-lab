@@ -1,0 +1,10 @@
+backend: vllm
+mode: fake
+model_id: TinyLlama/TinyLlama-1.1B-Chat-v1.0
+host: 127.0.0.1
+launch:
+  command: python3 -m fake_vllm
+metrics:
+  scrape_path: /metrics
+artifacts:
+  capture_launch_settings: true

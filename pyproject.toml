@@ -33,6 +33,12 @@ include = ["lsp*"]
 [tool.black]
 line-length = 100
 target-version = ["py312"]
+extend-exclude = '''
+/(\
+    \.uv-cache
+  | \.venv
+)/
+'''
 
 [tool.ruff]
 line-length = 100

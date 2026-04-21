@@ -176,6 +176,10 @@ class WorkloadConfig(ConfigDocument):
                 payload["request_count"],
                 "synthetic workload config.request_count",
             )
+            _ensure_type(payload["arrival"], dict, "synthetic workload config.arrival")
+            _ensure_type(payload["prompt_tokens"], dict, "synthetic workload config.prompt_tokens")
+            _ensure_type(payload["output_tokens"], dict, "synthetic workload config.output_tokens")
+            _ensure_type(payload["prefix_reuse"], dict, "synthetic workload config.prefix_reuse")
         elif kind == "workload_shaped":
             _require_keys(
                 payload,
@@ -183,6 +187,7 @@ class WorkloadConfig(ConfigDocument):
                     "workload_id",
                     "seed",
                     "kind",
+                    "request_count",
                     "mixture",
                     "arrival",
                     "prefix_reuse",
@@ -192,6 +197,7 @@ class WorkloadConfig(ConfigDocument):
                     "workload_id",
                     "seed",
                     "kind",
+                    "request_count",
                     "mixture",
                     "arrival",
                     "prefix_reuse",
@@ -199,10 +205,21 @@ class WorkloadConfig(ConfigDocument):
                 },
                 context="workload_shaped workload config",
             )
+            _ensure_positive_int(
+                payload["request_count"],
+                "workload_shaped workload config.request_count",
+            )
             mixture = payload["mixture"]
             _ensure_type(mixture, list, "workload_shaped workload config.mixture")
             if not mixture:
                 raise ValidationError("workload_shaped workload config.mixture must be non-empty")
+            _ensure_type(payload["arrival"], dict, "workload_shaped workload config.arrival")
+            _ensure_type(
+                payload["prefix_reuse"],
+                dict,
+                "workload_shaped workload config.prefix_reuse",
+            )
+            _ensure_type(payload["notes"], list, "workload_shaped workload config.notes")
         else:
             raise ValidationError("workload config.kind must be one of: synthetic, workload_shaped")
 
@@ -249,6 +266,11 @@ class ThresholdConfig(ConfigDocument):
             allowed={"threshold_set_id", "comparison_mode", "metrics"},
             context="threshold config",
         )
+        comparison_mode = payload["comparison_mode"]
+        if comparison_mode not in {"relative", "absolute"}:
+            raise ValidationError(
+                "threshold config.comparison_mode must be one of: relative, absolute"
+            )
         metrics = payload["metrics"]
         _ensure_type(metrics, dict, "threshold config.metrics")
         for metric_name, values in metrics.items():
@@ -258,6 +280,21 @@ class ThresholdConfig(ConfigDocument):
                     raw_value,
                     f"threshold config.metrics.{metric_name}.{key}",
                 )
+            for warn_key, fail_key in (
+                ("warn_if_increase_gt_pct", "fail_if_increase_gt_pct"),
+                ("warn_if_increase_gt_abs", "fail_if_increase_gt_abs"),
+                ("warn_if_decrease_gt_pct", "fail_if_decrease_gt_pct"),
+                ("warn_if_decrease_gt_abs", "fail_if_decrease_gt_abs"),
+            ):
+                warn_value = values.get(warn_key)
+                fail_value = values.get(fail_key)
+                if warn_value is None or fail_value is None:
+                    continue
+                if float(warn_value) > float(fail_value):
+                    raise ValidationError(
+                        f"threshold config.metrics.{metric_name} has impossible thresholds: "
+                        f"{warn_key} cannot exceed {fail_key}"
+                    )
         threshold_set_id = payload["threshold_set_id"]
         _ensure_type(threshold_set_id, str, "threshold config.threshold_set_id")
         return cls(threshold_set_id=threshold_set_id, resolved=payload)
@@ -300,6 +337,10 @@ class ExperimentConfig(ConfigDocument):
         _ensure_type(budget, dict, "experiment config.budget")
         for key in ("max_runs", "max_wall_clock_minutes", "max_consecutive_failures"):
             _ensure_positive_int(budget.get(key), f"experiment config.budget.{key}")
+        if int(budget["max_consecutive_failures"]) > int(budget["max_runs"]):
+            raise ValidationError(
+                "experiment config.budget.max_consecutive_failures cannot exceed max_runs"
+            )
         experiment_id = payload["experiment_id"]
         _ensure_type(experiment_id, str, "experiment config.experiment_id")
         return cls(experiment_id=experiment_id, resolved=payload)

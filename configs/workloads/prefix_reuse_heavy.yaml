@@ -1,0 +1,23 @@
+workload_id: prefix_reuse_heavy
+seed: 29
+kind: synthetic
+request_count: 80
+
+arrival:
+  distribution: poisson
+  rate_per_second: 1.0
+
+prompt_tokens:
+  distribution: lognormal
+  median: 1200
+  p95: 2400
+
+output_tokens:
+  distribution: lognormal
+  median: 96
+  p95: 220
+
+prefix_reuse:
+  enabled: true
+  reuse_probability: 0.85
+  prefix_pool_size: 6

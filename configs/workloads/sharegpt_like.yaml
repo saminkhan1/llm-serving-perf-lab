@@ -1,6 +1,7 @@
 workload_id: sharegpt_like
 seed: 17
 kind: workload_shaped
+request_count: 90
 
 mixture:
   - name: short_chat

@@ -20,6 +20,29 @@ class ConfigLoaderTests(unittest.TestCase):
         with self.assertRaises(ValidationError):
             load_config(config_path)
 
+    def test_missing_required_keys_fail_validation(self) -> None:
+        config_path = REPO_ROOT / "tests" / "fixtures" / "invalid_backend_missing_required.yaml"
+        with self.assertRaisesRegex(ValidationError, "missing required keys: port"):
+            load_config(config_path)
+
+    def test_invalid_enum_fails_validation(self) -> None:
+        config_path = REPO_ROOT / "tests" / "fixtures" / "invalid_threshold_bad_enum.yaml"
+        with self.assertRaisesRegex(ValidationError, "comparison_mode must be one of"):
+            load_config(config_path)
+
+    def test_impossible_thresholds_fail_validation(self) -> None:
+        config_path = REPO_ROOT / "tests" / "fixtures" / "invalid_threshold_impossible.yaml"
+        with self.assertRaisesRegex(ValidationError, "impossible thresholds"):
+            load_config(config_path)
+
+    def test_impossible_budget_fails_validation(self) -> None:
+        config_path = REPO_ROOT / "tests" / "fixtures" / "invalid_experiment_impossible_budget.yaml"
+        with self.assertRaisesRegex(
+            ValidationError,
+            "max_consecutive_failures cannot exceed max_runs",
+        ):
+            load_config(config_path)
+
 
 if __name__ == "__main__":
     unittest.main()

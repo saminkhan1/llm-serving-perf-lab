@@ -1,0 +1,20 @@
+{
+  "backend": "vllm",
+  "backend_version": "synthetic-m0",
+  "end_time_utc": "2026-04-21T00:00:01+00:00",
+  "git_commit": "deadbeef",
+  "git_dirty": false,
+  "hardware_profile": "Linux-x86_64",
+  "mode": "fake",
+  "model_id": "test-model",
+  "notes": [],
+  "policy_id": "none",
+  "repro_command": "python3 -m lsp.cli.main fake-run",
+  "run_id": "invalid-run",
+  "schema_version": "m0.v1",
+  "seed": 7,
+  "start_time_utc": "2026-04-21T00:00:00+00:00",
+  "status": "success",
+  "synthetic": true,
+  "workload_id": "chat_short"
+}

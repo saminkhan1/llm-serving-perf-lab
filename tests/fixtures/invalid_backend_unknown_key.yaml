@@ -1,0 +1,9 @@
+backend: vllm
+mode: serve
+model_id: meta-llama/Llama-3.2-1B-Instruct
+host: 127.0.0.1
+port: 8000
+launch: {}
+metrics: {}
+artifacts: {}
+unexpected: true

@@ -3,7 +3,7 @@
 Compact LLM serving performance lab focused on reproducibility, artifact quality, and hiring-signal-first systems work.
 
 Current status: M2 repo scaffolding is in place, but M2 is not complete on this machine.
-The repo now contains a real-mode vLLM adapter path, official `/metrics` ingestion, runtime metadata capture, a repo-owned vLLM launch template, an external GuideLLM cross-check plan, and real parquet artifact writing.
+The repo now contains a real-mode vLLM adapter path, official `/metrics` ingestion, runtime metadata capture, support for external HTTPS `base_url` targets, a repo-owned vLLM launch template, an external GuideLLM cross-check plan, and real parquet artifact writing.
 This machine still does not have a real vLLM deployment, GuideLLM, or GPU access, so no real vLLM baseline artifact or official-tool cross-check result is claimed here.
 
 ## Why this repo exists
@@ -23,6 +23,7 @@ Current implemented scope:
 - deterministic workload generation for M1 workload families
 - synthetic fake-run and dry-run benchmark paths for smoke testing repo wiring
 - real-mode vLLM adapter path with official Prometheus `/metrics` ingestion and failure artifacts
+- external `base_url` target support for Modal or other HTTPS vLLM deployments
 - repo-owned vLLM launch-plan rendering from `configs/backends/vllm_dev.yaml`
 - external GuideLLM cross-check scaffolding for M2 verification
 - unit and smoke tests
@@ -53,6 +54,7 @@ Verify the current repo state:
 
 ```bash
 make verify-m2
+make verify-m2 BACKEND_CONFIG=configs/backends/vllm_modal_example.yaml
 make smoke
 make reproduce RUN=m1 REPRO_RUN_ID=demo-m1
 ```
@@ -70,11 +72,15 @@ make reproduce RUN=m0 REPRO_RUN_ID=demo-m0
 make reproduce RUN=m1 REPRO_RUN_ID=demo-m1
 make reproduce RUN=configs/workloads/sharegpt_like.yaml REPRO_RUN_ID=demo-sharegpt
 make reproduce RUN=m2-real REPRO_WORKLOAD=configs/workloads/chat_short.yaml REPRO_RUN_ID=demo-m2-real
+make reproduce RUN=m2-real REPRO_BACKEND=configs/backends/vllm_modal_example.yaml REPRO_WORKLOAD=configs/workloads/chat_short.yaml REPRO_RUN_ID=demo-m2-modal
 ```
 
 `make reproduce RUN=m2-real` is a real-mode path.
 It requires a reachable vLLM endpoint or a host where you can turn the repo launch template into a working local server command.
 On this machine that runtime dependency is missing, so the command is reproducible as repo scaffolding but not expected to succeed locally.
+
+For a Modal-backed M2 run, fill in `configs/backends/vllm_modal_example.yaml` with the deployed `https://...modal.run` URL from Modal's official vLLM example, then use `REPRO_BACKEND=configs/backends/vllm_modal_example.yaml`.
+The repo expects `base_url` to be the endpoint root, not `/v1`, because it derives `/health`, `/version`, `/v1/completions`, and reads `/metrics` from `metrics.scrape_endpoint`.
 
 Inspect the repo-owned M2 launch and cross-check scaffolding directly:
 
@@ -83,6 +89,10 @@ uv run lsp render-vllm-launch --backend-config configs/backends/vllm_dev.yaml
 uv run lsp cross-check-guidellm \
   --backend-config configs/backends/vllm_dev.yaml \
   --workload-config configs/workloads/chat_short.yaml
+uv run lsp render-vllm-launch --backend-config configs/backends/vllm_modal_example.yaml
+uv run lsp cross-check-guidellm \
+  --backend-config configs/backends/vllm_modal_example.yaml \
+  --workload-config configs/workloads/chat_short.yaml
 ```
 
 ## CLI
@@ -90,10 +100,15 @@ uv run lsp cross-check-guidellm \
 ```bash
 uv run lsp --help
 uv run lsp validate-config configs/backends/vllm_dev.yaml
+uv run lsp validate-config configs/backends/vllm_modal_example.yaml
 uv run lsp validate-examples
 uv run lsp render-vllm-launch --backend-config configs/backends/vllm_dev.yaml
 uv run lsp cross-check-guidellm \
   --backend-config configs/backends/vllm_dev.yaml \
+  --workload-config configs/workloads/chat_short.yaml
+uv run lsp render-vllm-launch --backend-config configs/backends/vllm_modal_example.yaml
+uv run lsp cross-check-guidellm \
+  --backend-config configs/backends/vllm_modal_example.yaml \
   --workload-config configs/workloads/chat_short.yaml
 uv run lsp run \
   --backend-config configs/backends/vllm_dev.yaml \
@@ -107,6 +122,21 @@ uv run lsp fake-run \
   --output-dir artifacts \
   --run-id demo-run
 uv run lsp validate-artifact artifacts/demo-run
+```
+
+## Modal M2 Path
+
+Use `configs/backends/vllm_modal_example.yaml` for a real external HTTPS target and follow [docs/16-modal-m2-runbook.md](/Users/saminkhan1/Documents/llm-serving-perf-lab/docs/16-modal-m2-runbook.md:1).
+The shortest repo-owned path is:
+
+```bash
+make verify-m2 BACKEND_CONFIG=configs/backends/vllm_modal_example.yaml
+make reproduce RUN=m2-real REPRO_BACKEND=configs/backends/vllm_modal_example.yaml REPRO_WORKLOAD=configs/workloads/chat_short.yaml REPRO_RUN_ID=<run_id>
+uv run lsp cross-check-guidellm \
+  --backend-config configs/backends/vllm_modal_example.yaml \
+  --workload-config configs/workloads/chat_short.yaml \
+  --output-dir artifacts/<run_id>/guidellm \
+  --execute
 ```
 
 ## Artifact contract

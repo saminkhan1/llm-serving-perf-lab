@@ -1,6 +1,7 @@
 PYTHON ?= python3
 UV ?= uv
 UV_CACHE_DIR ?= .uv-cache
+BACKEND_CONFIG ?= configs/backends/vllm_dev.yaml
 UV_RUN = UV_CACHE_DIR=$(UV_CACHE_DIR) $(UV) run
 UV_SYNC = UV_CACHE_DIR=$(UV_CACHE_DIR) $(UV) sync --extra dev
 CLI = $(UV_RUN) python3 -m lsp.cli.main
@@ -17,26 +18,27 @@ validate-examples:
 	$(CLI) validate-examples
 
 fake-run:
-	$(CLI) fake-run --backend-config configs/backends/vllm_dev.yaml --workload-config configs/workloads/chat_short.yaml
+	$(CLI) fake-run --backend-config $(BACKEND_CONFIG) --workload-config configs/workloads/chat_short.yaml
 
 run:
-	$(CLI) run --backend-config configs/backends/vllm_dev.yaml --workload-config configs/workloads/mixed_short_long.yaml --dry-run
+	$(CLI) run --backend-config $(BACKEND_CONFIG) --workload-config configs/workloads/mixed_short_long.yaml --dry-run
 
 reproduce:
-	@test -n "$(RUN)" || (echo "usage: make reproduce RUN=m0|m1|m2-real|configs/workloads/<profile>.yaml [REPRO_OUTPUT_DIR=artifacts] [REPRO_RUN_ID=<run_id>] [REPRO_WORKLOAD=configs/workloads/<profile>.yaml]" && exit 2)
+	@test -n "$(RUN)" || (echo "usage: make reproduce RUN=m0|m1|m2-real|configs/workloads/<profile>.yaml [REPRO_BACKEND=configs/backends/<backend>.yaml] [REPRO_OUTPUT_DIR=artifacts] [REPRO_RUN_ID=<run_id>] [REPRO_WORKLOAD=configs/workloads/<profile>.yaml]" && exit 2)
 	@case "$(RUN)" in \
 		m0|fake) \
-			cmd="$(CLI) fake-run --backend-config configs/backends/vllm_dev.yaml --workload-config configs/workloads/chat_short.yaml --output-dir $(or $(REPRO_OUTPUT_DIR),artifacts)" ;; \
+			cmd="$(CLI) fake-run --backend-config $(or $(REPRO_BACKEND),$(BACKEND_CONFIG)) --workload-config configs/workloads/chat_short.yaml --output-dir $(or $(REPRO_OUTPUT_DIR),artifacts)" ;; \
 		m1|dry-run) \
-			cmd="$(CLI) run --backend-config configs/backends/vllm_dev.yaml --workload-config configs/workloads/mixed_short_long.yaml --output-dir $(or $(REPRO_OUTPUT_DIR),artifacts) --dry-run" ;; \
+			cmd="$(CLI) run --backend-config $(or $(REPRO_BACKEND),$(BACKEND_CONFIG)) --workload-config configs/workloads/mixed_short_long.yaml --output-dir $(or $(REPRO_OUTPUT_DIR),artifacts) --dry-run" ;; \
 		m2-real) \
+			backend="$(or $(REPRO_BACKEND),$(BACKEND_CONFIG))"; \
 			workload="$(or $(REPRO_WORKLOAD),configs/workloads/chat_short.yaml)"; \
 			echo "M2 real-mode reproduction requires a reachable vLLM server or a local environment where the launch template can be turned into a real command."; \
-			echo "Inspect the repo-owned launch plan with: $(CLI) render-vllm-launch --backend-config configs/backends/vllm_dev.yaml"; \
-			echo "Inspect the external GuideLLM cross-check plan with: $(CLI) cross-check-guidellm --backend-config configs/backends/vllm_dev.yaml --workload-config $$workload"; \
-			cmd="$(CLI) run --backend-config configs/backends/vllm_dev.yaml --workload-config $$workload --output-dir $(or $(REPRO_OUTPUT_DIR),artifacts)" ;; \
+			echo "Inspect the repo-owned launch plan with: $(CLI) render-vllm-launch --backend-config $$backend"; \
+			echo "Inspect the external GuideLLM cross-check plan with: $(CLI) cross-check-guidellm --backend-config $$backend --workload-config $$workload"; \
+			cmd="$(CLI) run --backend-config $$backend --workload-config $$workload --output-dir $(or $(REPRO_OUTPUT_DIR),artifacts)" ;; \
 		configs/workloads/*.yaml) \
-			cmd="$(CLI) run --backend-config configs/backends/vllm_dev.yaml --workload-config $(RUN) --output-dir $(or $(REPRO_OUTPUT_DIR),artifacts) --dry-run" ;; \
+			cmd="$(CLI) run --backend-config $(or $(REPRO_BACKEND),$(BACKEND_CONFIG)) --workload-config $(RUN) --output-dir $(or $(REPRO_OUTPUT_DIR),artifacts) --dry-run" ;; \
 		*) \
 			echo "unsupported RUN=$(RUN): use m0, m1, m2-real, or configs/workloads/<profile>.yaml"; \
 			exit 2 ;; \
@@ -64,5 +66,5 @@ verify-m0: lint format-check typecheck test validate-examples
 verify-m1: lint format-check typecheck test validate-examples
 
 verify-m2: lint format-check typecheck test validate-examples
-	$(CLI) render-vllm-launch --backend-config configs/backends/vllm_dev.yaml
-	$(CLI) cross-check-guidellm --backend-config configs/backends/vllm_dev.yaml --workload-config configs/workloads/chat_short.yaml
+	$(CLI) render-vllm-launch --backend-config $(BACKEND_CONFIG)
+	$(CLI) cross-check-guidellm --backend-config $(BACKEND_CONFIG) --workload-config configs/workloads/chat_short.yaml

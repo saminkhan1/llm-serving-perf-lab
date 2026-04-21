@@ -22,6 +22,13 @@ def _string_list(value: object, *, context: str) -> list[str]:
     return [str(item) for item in value]
 
 
+def _resolve_base_url(payload: dict[str, Any]) -> str:
+    configured = payload.get("base_url")
+    if isinstance(configured, str) and configured:
+        return configured.rstrip("/")
+    return f"http://{payload['host']}:{payload['port']}"
+
+
 def build_vllm_launch_plan(config: BackendConfig) -> dict[str, Any]:
     _ensure_vllm_backend(config)
     launch = config.resolved["launch"]
@@ -41,13 +48,11 @@ def build_vllm_launch_plan(config: BackendConfig) -> dict[str, Any]:
         )
 
     resolved = command or command_template
-    return {
+    plan = {
         "backend": config.backend,
         "model_id": config.model_id,
         "attach_mode": attach_mode,
-        "host": config.resolved["host"],
-        "port": config.resolved["port"],
-        "base_url": f"http://{config.resolved['host']}:{config.resolved['port']}",
+        "base_url": _resolve_base_url(config.resolved),
         "metrics_endpoint": config.resolved["metrics"]["scrape_endpoint"],
         "has_spawn_command": command is not None,
         "has_command_template": command_template is not None,
@@ -64,6 +69,11 @@ def build_vllm_launch_plan(config: BackendConfig) -> dict[str, Any]:
             ),
         ],
     }
+    if "host" in config.resolved:
+        plan["host"] = config.resolved["host"]
+    if "port" in config.resolved:
+        plan["port"] = config.resolved["port"]
+    return plan
 
 
 def _mean_int(values: list[int]) -> int:
@@ -85,7 +95,7 @@ def build_guidellm_cross_check_plan(
     avg_prompt_tokens = _mean_int(prompt_tokens)
     avg_output_tokens = _mean_int(output_tokens)
     data_arg = f"prompt_tokens={avg_prompt_tokens},output_tokens={avg_output_tokens}"
-    target = f"http://{backend.resolved['host']}:{backend.resolved['port']}"
+    target = _resolve_base_url(backend.resolved)
     command = [
         "guidellm",
         "benchmark",

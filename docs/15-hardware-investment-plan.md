@@ -287,6 +287,11 @@ Milestones:
 - first M2 real baseline attempt
 - one narrow rerun if the first result is close but not portfolio-grade
 
+Repo path:
+- fill in `configs/backends/vllm_modal_example.yaml`
+- point `base_url` at the deployed Modal endpoint root
+- run `make reproduce RUN=m2-real REPRO_BACKEND=configs/backends/vllm_modal_example.yaml`
+
 Stop using Modal for the main path when:
 - the monthly free credit would force artificial delays
 - repeated reruns are needed

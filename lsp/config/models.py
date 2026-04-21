@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import asdict, dataclass
 from typing import Any, ClassVar
+from urllib.parse import urlsplit
 
 
 class ValidationError(ValueError):
@@ -43,6 +44,28 @@ def _ensure_non_negative_number(value: Any, context: str) -> float:
     return number
 
 
+def _ensure_http_url(
+    value: Any,
+    context: str,
+    *,
+    strip_trailing_slash: bool,
+) -> str:
+    _ensure_type(value, str, context)
+    text = str(value).strip()
+    if not text:
+        raise ValidationError(f"{context} must be a non-empty string")
+    parsed = urlsplit(text)
+    if parsed.scheme not in {"http", "https"}:
+        raise ValidationError(f"{context} must use http or https")
+    if not parsed.netloc:
+        raise ValidationError(f"{context} must include a hostname")
+    if parsed.query or parsed.fragment:
+        raise ValidationError(f"{context} may not include query params or fragments")
+    if strip_trailing_slash and text.endswith("/"):
+        text = text.rstrip("/")
+    return text
+
+
 @dataclass(frozen=True)
 class ConfigDocument:
     kind: ClassVar[str]
@@ -69,8 +92,6 @@ class BackendConfig(ConfigDocument):
                     "backend",
                     "mode",
                     "model_id",
-                    "host",
-                    "port",
                     "launch",
                     "metrics",
                     "artifacts",
@@ -79,6 +100,7 @@ class BackendConfig(ConfigDocument):
                     "backend",
                     "mode",
                     "model_id",
+                    "base_url",
                     "host",
                     "port",
                     "launch",
@@ -87,11 +109,31 @@ class BackendConfig(ConfigDocument):
                 },
                 context="vllm backend config",
             )
-            _ensure_type(payload["host"], str, "vllm backend config.host")
-            _ensure_positive_int(payload["port"], "vllm backend config.port")
             _ensure_type(payload["launch"], dict, "vllm backend config.launch")
             _ensure_type(payload["metrics"], dict, "vllm backend config.metrics")
             _ensure_type(payload["artifacts"], dict, "vllm backend config.artifacts")
+            has_base_url = "base_url" in payload
+            has_host = "host" in payload
+            has_port = "port" in payload
+            if has_base_url and (has_host or has_port):
+                raise ValidationError(
+                    "vllm backend config must use either base_url or host/port, not both"
+                )
+            if has_base_url:
+                payload["base_url"] = _ensure_http_url(
+                    payload["base_url"],
+                    "vllm backend config.base_url",
+                    strip_trailing_slash=True,
+                )
+            else:
+                missing_endpoint = [key for key in ("host", "port") if key not in payload]
+                if missing_endpoint:
+                    raise ValidationError(
+                        "vllm backend config missing required keys: "
+                        + ", ".join(missing_endpoint)
+                    )
+                _ensure_type(payload["host"], str, "vllm backend config.host")
+                _ensure_positive_int(payload["port"], "vllm backend config.port")
             launch = payload["launch"]
             if "command" in launch and launch["command"] is not None:
                 _ensure_type(launch["command"], list, "vllm backend config.launch.command")
@@ -113,10 +155,10 @@ class BackendConfig(ConfigDocument):
                 raise ValidationError(
                     "vllm backend config.metrics missing required key: scrape_endpoint"
                 )
-            _ensure_type(
+            metrics["scrape_endpoint"] = _ensure_http_url(
                 metrics["scrape_endpoint"],
-                str,
                 "vllm backend config.metrics.scrape_endpoint",
+                strip_trailing_slash=False,
             )
             if "scrape_interval_seconds" in metrics:
                 _ensure_non_negative_number(

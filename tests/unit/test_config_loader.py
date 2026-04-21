@@ -13,6 +13,7 @@ class ConfigLoaderTests(unittest.TestCase):
     def test_validate_example_configs(self) -> None:
         results = validate_example_configs(REPO_ROOT)
         self.assertIn("configs/backends/vllm_dev.yaml", results)
+        self.assertIn("configs/backends/vllm_modal_example.yaml", results)
         self.assertEqual(results["configs/workloads/chat_short.yaml"], "workload")
 
     def test_unknown_keys_fail_validation(self) -> None:
@@ -24,6 +25,18 @@ class ConfigLoaderTests(unittest.TestCase):
         config_path = REPO_ROOT / "tests" / "fixtures" / "invalid_backend_missing_required.yaml"
         with self.assertRaisesRegex(ValidationError, "missing required keys: port"):
             load_config(config_path)
+
+    def test_conflicting_endpoint_modes_fail_validation(self) -> None:
+        config_path = (
+            REPO_ROOT / "tests" / "fixtures" / "invalid_backend_conflicting_endpoint_modes.yaml"
+        )
+        with self.assertRaisesRegex(ValidationError, "either base_url or host/port"):
+            load_config(config_path)
+
+    def test_modal_backend_config_validates(self) -> None:
+        config_path = REPO_ROOT / "configs" / "backends" / "vllm_modal_example.yaml"
+        config = load_config(config_path)
+        self.assertEqual(config.kind, "backend")
 
     def test_invalid_enum_fails_validation(self) -> None:
         config_path = REPO_ROOT / "tests" / "fixtures" / "invalid_threshold_bad_enum.yaml"

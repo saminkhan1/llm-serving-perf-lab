@@ -19,8 +19,25 @@ class M2ScaffoldingTests(unittest.TestCase):
         plan = build_vllm_launch_plan(config)
 
         self.assertEqual(plan["attach_mode"], "external")
+        self.assertEqual(plan["base_url"], "http://127.0.0.1:8000")
         self.assertTrue(bool(plan["has_command_template"]))
         self.assertIn("vllm.entrypoints.openai.api_server", str(plan["command_shell"]))
+
+    def test_vllm_launch_plan_supports_base_url_targets(self) -> None:
+        config_document = load_config(
+            REPO_ROOT / "configs" / "backends" / "vllm_modal_example.yaml"
+        )
+        config = cast(BackendConfig, config_document)
+
+        plan = build_vllm_launch_plan(config)
+
+        self.assertEqual(
+            plan["base_url"],
+            "https://your-workspace-name--example-vllm-inference-serve.modal.run",
+        )
+        self.assertNotIn("host", plan)
+        self.assertNotIn("port", plan)
+        self.assertFalse(bool(plan["has_command_template"]))
 
     def test_guidellm_cross_check_plan_is_explicitly_external(self) -> None:
         backend_document = load_config(REPO_ROOT / "configs" / "backends" / "vllm_dev.yaml")
@@ -38,3 +55,22 @@ class M2ScaffoldingTests(unittest.TestCase):
         self.assertEqual(plan["request_count"], int(workload.resolved["request_count"]))
         self.assertIn("--max-requests", plan["command"])
         self.assertIn("external cross-check scaffolding", " ".join(plan["notes"]).lower())
+
+    def test_guidellm_cross_check_plan_uses_external_base_url(self) -> None:
+        backend_document = load_config(
+            REPO_ROOT / "configs" / "backends" / "vllm_modal_example.yaml"
+        )
+        workload_document = load_config(REPO_ROOT / "configs" / "workloads" / "chat_short.yaml")
+        backend = cast(BackendConfig, backend_document)
+        workload = cast(WorkloadConfig, workload_document)
+
+        plan = build_guidellm_cross_check_plan(
+            backend=backend,
+            workload=workload,
+            output_dir=REPO_ROOT / "artifacts",
+        )
+
+        self.assertEqual(
+            plan["target"],
+            "https://your-workspace-name--example-vllm-inference-serve.modal.run",
+        )

@@ -19,6 +19,17 @@ from lsp.metrics.prometheus import parse_prometheus_metrics
 from lsp.workloads import NormalizedRequest
 
 
+def _resolve_base_url(payload: dict[str, Any]) -> str:
+    configured = payload.get("base_url")
+    if isinstance(configured, str) and configured:
+        return configured.rstrip("/")
+    return f"http://{payload['host']}:{payload['port']}"
+
+
+def _join_url(base_url: str, path: str) -> str:
+    return f"{base_url.rstrip('/')}{path}"
+
+
 def _http_json(
     *,
     method: str,
@@ -70,10 +81,10 @@ class VLLMAdapter(BackendAdapter):
 
         self.config = config
         self.payload = config.resolved
-        self.base_url = f"http://{self.payload['host']}:{self.payload['port']}"
-        self.health_url = f"{self.base_url}/health"
-        self.version_url = f"{self.base_url}/version"
-        self.completions_url = f"{self.base_url}/v1/completions"
+        self.base_url = _resolve_base_url(self.payload)
+        self.health_url = _join_url(self.base_url, "/health")
+        self.version_url = _join_url(self.base_url, "/version")
+        self.completions_url = _join_url(self.base_url, "/v1/completions")
         metrics = self.payload["metrics"]
         self.scrape_endpoint = str(metrics["scrape_endpoint"])
         self.settings = self._parse_launch_settings()

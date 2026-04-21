@@ -129,8 +129,7 @@ class BackendConfig(ConfigDocument):
                 missing_endpoint = [key for key in ("host", "port") if key not in payload]
                 if missing_endpoint:
                     raise ValidationError(
-                        "vllm backend config missing required keys: "
-                        + ", ".join(missing_endpoint)
+                        "vllm backend config missing required keys: " + ", ".join(missing_endpoint)
                     )
                 _ensure_type(payload["host"], str, "vllm backend config.host")
                 _ensure_positive_int(payload["port"], "vllm backend config.port")

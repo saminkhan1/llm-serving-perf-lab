@@ -1,0 +1,18 @@
+threshold_set_id: default
+comparison_mode: relative
+
+metrics:
+  p95_latency_ms:
+    warn_if_increase_gt_pct: 5
+    fail_if_increase_gt_pct: 12
+  p99_latency_ms:
+    warn_if_increase_gt_pct: 8
+    fail_if_increase_gt_pct: 15
+  requests_per_second:
+    warn_if_decrease_gt_pct: 3
+    fail_if_decrease_gt_pct: 8
+  tokens_per_second:
+    warn_if_decrease_gt_pct: 3
+    fail_if_decrease_gt_pct: 8
+  error_rate:
+    fail_if_increase_gt_abs: 0.005

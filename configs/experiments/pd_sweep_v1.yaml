@@ -1,0 +1,51 @@
+experiment_id: pd_sweep_v1
+
+baseline:
+  backend_config: examples/configs/backends/sglang_pd_single_node.yaml
+  workload_config: examples/configs/workloads/sharegpt_like.yaml
+
+objective:
+  name: minimize_p95_subject_to_throughput_floor
+  primary_metric: p95_latency_ms
+  direction: min
+  constraints:
+    - metric: requests_per_second
+      op: ">="
+      value_from: baseline
+      tolerance_pct: -5
+    - metric: error_rate
+      op: "<="
+      absolute: 0.01
+  tie_breakers:
+    - lower_ttft_ms
+    - higher_tokens_per_second
+
+search_space:
+  explicit_candidates:
+    - name: pd_ratio_1_1
+      delta:
+        prefill_workers: 1
+        decode_workers: 1
+    - name: pd_ratio_1_2
+      delta:
+        prefill_workers: 1
+        decode_workers: 2
+    - name: pd_ratio_2_2
+      delta:
+        prefill_workers: 2
+        decode_workers: 2
+
+budget:
+  max_runs: 6
+  max_wall_clock_minutes: 90
+  max_consecutive_failures: 2
+
+approval_policy:
+  default: allow_with_log
+  require_user_approval_for:
+    - commands_outside_workspace
+    - network_access_outside_allowlist
+
+reporting:
+  write_markdown_summary: true
+  write_json_summary: true

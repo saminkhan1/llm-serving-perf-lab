@@ -1,0 +1,37 @@
+workload_id: sharegpt_like
+seed: 17
+kind: workload_shaped
+
+mixture:
+  - name: short_chat
+    weight: 0.65
+    prompt_tokens_median: 220
+    prompt_tokens_p95: 900
+    output_tokens_median: 120
+    output_tokens_p95: 350
+  - name: long_chat
+    weight: 0.25
+    prompt_tokens_median: 1800
+    prompt_tokens_p95: 4200
+    output_tokens_median: 180
+    output_tokens_p95: 500
+  - name: reused_prefix_chat
+    weight: 0.10
+    prompt_tokens_median: 900
+    prompt_tokens_p95: 2200
+    output_tokens_median: 140
+    output_tokens_p95: 300
+
+arrival:
+  pattern: bursty_poisson
+  base_rate_per_second: 2.0
+  burst_multiplier: 4.0
+  burst_duration_seconds: 20
+  burst_every_seconds: 120
+
+prefix_reuse:
+  enabled: true
+  reuse_probability: 0.35
+
+notes:
+  - This is a workload-shaped approximation, not a claim of fidelity to any proprietary production trace.

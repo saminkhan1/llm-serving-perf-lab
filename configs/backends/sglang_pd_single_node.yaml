@@ -1,0 +1,26 @@
+backend: sglang
+mode: pd
+model_id: meta-llama/Llama-3.2-1B-Instruct
+
+router:
+  host: 127.0.0.1
+  port: 8000
+
+workers:
+  prefill:
+    host: 127.0.0.1
+    port: 30000
+    gpu_ids: [0]
+    disaggregation_mode: prefill
+  decode:
+    host: 127.0.0.1
+    port: 30001
+    gpu_ids: [1]
+    disaggregation_mode: decode
+
+transfer:
+  backend: mooncake
+
+artifacts:
+  record_worker_roles: true
+  record_endpoints: true

@@ -1,0 +1,23 @@
+You are working inside `llm-serving-perf-lab`.
+
+Read first:
+- `AGENTS.md`
+- `docs/00-start-here.md`
+- `docs/01-hiring-signal-charter.md`
+- `docs/03-milestones.md`
+- `docs/05-architecture.md`
+- `docs/06-acceptance-tests.md`
+- `docs/07-agent-work-orders.md`
+
+Execute **Work order A — M0 foundation** only.
+
+Do not jump ahead.
+
+Return:
+1. changed files
+2. summary of behavior
+3. commands run
+4. test results
+5. artifact paths produced
+6. remaining risks
+7. exact next recommended work order

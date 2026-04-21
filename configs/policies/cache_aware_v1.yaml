@@ -1,0 +1,22 @@
+policy_id: cache_aware_v1
+kind: online
+
+allowed_signals:
+  - prompt_length_bucket
+  - estimated_decode_length
+  - prefix_hash
+  - queue_depth
+  - recent_ttft_ewma
+  - recent_itl_ewma
+  - memory_headroom
+  - worker_role
+
+decision_order:
+  - prefer_prefix_reuse
+  - avoid_overloaded_workers
+  - respect_role_constraints
+  - break_ties_by_recent_latency
+
+fallback:
+  policy: round_robin
+  log_reason: true

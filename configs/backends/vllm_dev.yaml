@@ -1,0 +1,20 @@
+backend: vllm
+mode: serve
+model_id: meta-llama/Llama-3.2-1B-Instruct
+host: 127.0.0.1
+port: 8000
+
+launch:
+  tensor_parallel_size: 1
+  gpu_memory_utilization: 0.9
+  max_num_seqs: 32
+  max_num_batched_tokens: 2048
+  enable_prefix_caching: true
+
+metrics:
+  scrape_endpoint: http://127.0.0.1:8000/metrics
+  scrape_interval_seconds: 2
+
+artifacts:
+  capture_runtime_metadata: true
+  write_plots: true

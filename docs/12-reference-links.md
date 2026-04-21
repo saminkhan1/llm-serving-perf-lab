@@ -29,6 +29,8 @@ These links were used to keep the project aligned with current role expectations
   https://job-boards.greenhouse.io/anthropic/jobs/5155391008
 
 ### Google
+- Software Engineer III, AI/ML, GPU Inference, Optimization
+  https://www.google.com/about/careers/applications/jobs/results/106212715688534726-software-engineer-iii-aiml-gpu-inference-optimization
 - Senior Software Engineer, Kernels and Performance, Core ML Frameworks  
   https://www.google.com/about/careers/applications/jobs/results/95671812737639110-senior-software-engineer/
 
@@ -63,3 +65,21 @@ These links were used to keep the project aligned with current role expectations
   https://nvidia.github.io/TensorRT-LLM/blogs/tech_blog/blog5_Disaggregated_Serving_in_TensorRT-LLM.html
 - `trtllm-serve` command docs  
   https://nvidia.github.io/TensorRT-LLM/commands/trtllm-serve/trtllm-serve.html
+
+### Google Cloud serving and optimization
+- Serve open-source LLMs on Google Cloud
+  https://cloud.google.com/blog/products/ai-machine-learning/serve-open-source-llms-on-google-cloud
+- vLLM serving for text-only and multimodal language models on Cloud GPUs
+  https://cloud.google.com/vertex-ai/generative-ai/docs/open-models/vllm/use-vllm
+- Best practices for optimizing large language model inference with GPUs on GKE
+  https://cloud.google.com/kubernetes-engine/docs/best-practices/machine-learning/inference/llm-optimization
+- GPU pricing
+  https://cloud.google.com/compute/gpus-pricing
+
+### Modal
+- Pricing
+  https://modal.com/pricing
+- GPU acceleration
+  https://modal.com/docs/guide/gpu
+- Run OpenAI-compatible LLM inference with vLLM
+  https://modal.com/docs/examples/llm_inference

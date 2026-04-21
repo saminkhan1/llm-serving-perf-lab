@@ -10,6 +10,24 @@ Do not spend against abstract “future scale.”
 
 Spend only when the next milestone needs real hardware to produce a proof artifact that hiring managers actually care about.
 
+## Pricing references to keep in view
+
+Checked: 2026-04-21
+
+Modal's public pricing currently advertises a Starter plan with `$30 / month` in free credit and roughly:
+- L4 at about `$0.80 / hour`
+- A10 at about `$1.10 / hour`
+- A100 40 GB at about `$2.10 / hour`
+- A100 80 GB at about `$2.50 / hour`
+- H100 at about `$3.95 / hour`
+
+Google Cloud pricing needs more careful reading:
+- some pages show GPU-only prices that do **not** include the rest of the VM bill
+- accelerator-optimized machine families often bundle GPU cost into the machine-type price instead of a simple add-on row
+- disk, network, and storage still matter for the real bill
+
+Do not compare a Modal per-second rate directly to a Google Cloud GPU-only line item and call that a cost comparison. Use the current source pages in `docs/12-reference-links.md` and estimate the full run cost for the exact machine shape you will use.
+
 ## Target proof bar
 
 The practical target for this repo is:
@@ -17,12 +35,14 @@ The practical target for this repo is:
 
 For this role family, the minimum convincing artifact set is:
 - one real vLLM artifact pack
+- one official-tool or GuideLLM cross-check
 - one honest SGLang PD study
 - one regression gate artifact
 - one profiler-backed optimization artifact
-- one routing or placement study
 - one upstream issue / PR
 - one public writeup with reproduction commands
+
+Routing or placement work is still valuable, but it should follow the first proof set instead of blocking it.
 
 ## Recommended local setup
 
@@ -36,6 +56,8 @@ Use the Apple Silicon laptop as the daily development machine for:
 Do not plan around the Intel laptop for anything beyond light editing or verification.
 
 ## Recommended cloud strategy
+
+Treat cloud spend as an evidence budget, not a platform bet.
 
 ## Provider order
 
@@ -83,6 +105,7 @@ Best uses in this repo:
 - first M2 real vLLM baseline attempt
 - narrow single-GPU reruns for M2 or M5
 - experimentation that benefits from quick bring-up and official vLLM / SGLang examples
+- cases where the public pricing and free-credit model let you get one proof artifact faster than managing a VM
 
 Avoid using Modal as the primary platform when:
 - you need extended iterative benchmarking over many hours
@@ -108,6 +131,7 @@ Treat GCP as the preferred free-credit path for:
 - multi-step milestone execution
 - 2-GPU milestones
 - artifacts where lower-level infrastructure control improves credibility
+- you need the full machine bill to look like direct systems work, not just managed endpoint bring-up
 
 ### Cheapest paid marketplace GPUs
 
@@ -325,6 +349,11 @@ The goal is to preserve cash while keeping the artifact story coherent.
 ## Budget bands
 
 These are planning bands, not promises.
+
+Interpret them as:
+- GPU-hour guidance, not guaranteed invoice totals
+- enough spend to produce the next proof artifact, not a general experimentation budget
+- numbers that should be rechecked against the live pricing pages before purchase
 
 ### Minimum viable budget
 

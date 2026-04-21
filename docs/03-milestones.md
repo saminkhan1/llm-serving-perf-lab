@@ -92,6 +92,13 @@ Bring up vLLM for real, ingest official metrics, and establish the first trustwo
 - artifact includes run metadata, metrics, report, and repro command
 - at least one result is cross-checked against official benchmarking flow
 
+### Stop-and-package gate after M2
+Before any M4 work starts, update:
+- README status and measured-findings draft
+- artifact index entry using `docs/18-artifact-index-template.md`
+- proof-readiness state in `docs/19-proof-readiness-checklist.md`
+- claim wording in `docs/10-application-packaging.md` if the new artifact changes what is safe to say
+
 ---
 
 ## M3 — Portfolio Checkpoint A
@@ -104,6 +111,8 @@ Force an early public-quality artifact before more platform work.
 - one concise result summary
 - one README draft section with measured numbers
 - one artifact reproduction command
+- one artifact-index entry
+- one proof-readiness status update
 
 ### Done when
 - a skeptical engineer can understand the result in under two minutes
@@ -174,6 +183,13 @@ Make profiling a normal part of the workflow before chasing sophisticated optimi
 - a profiled run emits normalized parsed summaries
 - runs still work when profiler is unavailable
 - profiler outputs can be linked directly from a report
+
+### Stop-and-package gate after M6
+Before any M7 work starts, update:
+- README findings block or draft findings block
+- technical writeup draft for the profiler-backed note
+- artifact index entry for the profiled run
+- proof-readiness checklist and application-facing copy to reflect what is now safe to claim
 
 ---
 
@@ -295,6 +311,7 @@ Package the repo so it reads well in hiring funnels.
 - technical writeup
 - artifact index
 - application packaging assets
+- completed proof-readiness checklist
 
 ### Done when
 - clean-checkout quickstart works

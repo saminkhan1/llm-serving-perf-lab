@@ -1,6 +1,10 @@
 # Role Alignment
 
+Checked: 2026-04-21
+
 This document exists to keep the project aligned with what current inference / performance roles actually reward.
+
+Use [docs/17-job-mapping-2026.md](/Users/saminkhan1/Documents/llm-serving-perf-lab/docs/17-job-mapping-2026.md:1) as the dated appendix when updating README copy, artifact summaries, or application-facing language. This page holds the stable thesis; the appendix holds the current public-role evidence map.
 
 ## Primary target roles
 
@@ -16,6 +20,8 @@ This maps most directly to the current role shapes at:
 - Anthropic Inference
 - Anthropic Cloud Inference
 - Anthropic Inference Deployment
+- Anthropic Inference Routing and Performance
+- Google Software Engineer III, AI/ML, GPU Inference, Optimization
 
 ## Secondary / stretch target roles
 
@@ -175,3 +181,20 @@ Do these:
 4. profiler-backed optimization note
 
 If those four are excellent, the repo can already become useful in applications.
+
+## 2026 evidence rule
+
+When a current role page emphasizes:
+- throughput / latency / high-availability serving
+- bottleneck visibility and instability debugging
+- repeatable benchmarks and regression detection
+- routing, deployment automation, or heterogeneous accelerator judgment
+
+answer with one artifact, not one paragraph.
+
+The practical mapping is:
+- real vLLM artifact pack for serving-stack credibility
+- GuideLLM or official-tool cross-check for result validation
+- regression gate for rollout and launch-engineering signal
+- profiler-backed note for depth
+- routing study for systems judgment

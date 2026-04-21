@@ -2,6 +2,10 @@
 
 Compact LLM serving performance lab focused on reproducibility, artifact quality, and hiring-signal-first systems work.
 
+> [!WARNING]
+> Status as of 2026-04-21: portfolio-in-progress. M2 scaffolding exists, but there is still no checked-in real vLLM artifact pack, no completed official-tool cross-check, and no measured performance finding that is safe to lead with publicly.
+> Until [docs/19-proof-readiness-checklist.md](/Users/saminkhan1/Documents/llm-serving-perf-lab/docs/19-proof-readiness-checklist.md:1) reaches at least Silver, treat this repo as evidence of engineering judgment and lab discipline, not completed inference/performance proof.
+
 Current status: M2 repo scaffolding is in place, but M2 is not complete on this machine.
 The repo now contains a real-mode vLLM adapter path, official `/metrics` ingestion, runtime metadata capture, support for external HTTPS `base_url` targets, a repo-owned vLLM launch template, an external GuideLLM cross-check plan, and real parquet artifact writing.
 This machine still does not have a real vLLM deployment, GuideLLM, or GPU access, so no real vLLM baseline artifact or official-tool cross-check result is claimed here.

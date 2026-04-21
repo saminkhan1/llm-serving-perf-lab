@@ -2,9 +2,9 @@
 
 Compact LLM serving performance lab focused on reproducibility, artifact quality, and hiring-signal-first systems work.
 
-Current status: M1 deterministic workload generation plus a dry-run benchmark harness is complete.
-This repo now provides validated workload configs, seeded synthetic request generation, artifact writing, and clearly labeled dry-run and fake-run paths.
-It does not yet contain real vLLM or SGLang benchmark results, so it should be shared as an in-progress open-source build log, not as a finished performance portfolio.
+Current status: M2 repo scaffolding is in place, but M2 is not complete on this machine.
+The repo now contains a real-mode vLLM adapter path, official `/metrics` ingestion, runtime metadata capture, a repo-owned vLLM launch template, an external GuideLLM cross-check plan, and real parquet artifact writing.
+This machine still does not have a real vLLM deployment, GuideLLM, or GPU access, so no real vLLM baseline artifact or official-tool cross-check result is claimed here.
 
 ## Why this repo exists
 
@@ -20,17 +20,19 @@ The goal is to build a small but serious inference-performance lab that eventual
 Current implemented scope:
 - Python package and CLI scaffold (`lsp`)
 - strict YAML config validation for backend, workload, policy, threshold, and experiment configs
-- artifact bundle writer plus validation checks
 - deterministic workload generation for M1 workload families
 - synthetic fake-run and dry-run benchmark paths for smoke testing repo wiring
+- real-mode vLLM adapter path with official Prometheus `/metrics` ingestion and failure artifacts
+- repo-owned vLLM launch-plan rendering from `configs/backends/vllm_dev.yaml`
+- external GuideLLM cross-check scaffolding for M2 verification
 - unit and smoke tests
 - example configs for future milestones
 
 ## What does not exist yet
 
 To keep claims honest, this repo does not yet provide:
-- real serving runs
-- official backend metrics ingestion
+- a checked-in real vLLM artifact pack produced on this machine
+- a completed GuideLLM cross-check result produced on this machine
 - measured performance claims
 - PD comparison studies
 - profiler-backed optimization reports
@@ -47,10 +49,10 @@ Setup:
 make install
 ```
 
-Verify the current M1 state:
+Verify the current repo state:
 
 ```bash
-make verify-m1
+make verify-m2
 make smoke
 make reproduce RUN=m1 REPRO_RUN_ID=demo-m1
 ```
@@ -61,16 +63,27 @@ Validate a generated artifact directory:
 uv run lsp validate-artifact artifacts/<run_id>
 ```
 
-Reproduce the current synthetic milestones with stable aliases:
+Reproduce the current stable aliases:
 
 ```bash
 make reproduce RUN=m0 REPRO_RUN_ID=demo-m0
 make reproduce RUN=m1 REPRO_RUN_ID=demo-m1
 make reproduce RUN=configs/workloads/sharegpt_like.yaml REPRO_RUN_ID=demo-sharegpt
+make reproduce RUN=m2-real REPRO_WORKLOAD=configs/workloads/chat_short.yaml REPRO_RUN_ID=demo-m2-real
 ```
 
-`make reproduce` is intentionally limited to the current M0/M1 synthetic paths.
-It does not run a real backend and must not be presented as measured M2+ evidence.
+`make reproduce RUN=m2-real` is a real-mode path.
+It requires a reachable vLLM endpoint or a host where you can turn the repo launch template into a working local server command.
+On this machine that runtime dependency is missing, so the command is reproducible as repo scaffolding but not expected to succeed locally.
+
+Inspect the repo-owned M2 launch and cross-check scaffolding directly:
+
+```bash
+uv run lsp render-vllm-launch --backend-config configs/backends/vllm_dev.yaml
+uv run lsp cross-check-guidellm \
+  --backend-config configs/backends/vllm_dev.yaml \
+  --workload-config configs/workloads/chat_short.yaml
+```
 
 ## CLI
 
@@ -78,6 +91,10 @@ It does not run a real backend and must not be presented as measured M2+ evidenc
 uv run lsp --help
 uv run lsp validate-config configs/backends/vllm_dev.yaml
 uv run lsp validate-examples
+uv run lsp render-vllm-launch --backend-config configs/backends/vllm_dev.yaml
+uv run lsp cross-check-guidellm \
+  --backend-config configs/backends/vllm_dev.yaml \
+  --workload-config configs/workloads/chat_short.yaml
 uv run lsp run \
   --backend-config configs/backends/vllm_dev.yaml \
   --workload-config configs/workloads/mixed_short_long.yaml \
@@ -105,7 +122,8 @@ A successful run artifact is expected to contain:
 - `metrics.parquet`
 - `plots/`
 
-Note: the M0 fake-run path and the M1 `run --dry-run` path both write deterministic JSON rows into `.parquet`-named files only to exercise the artifact contract. These are synthetic scaffolding paths, not a real parquet-format claim or real benchmark result.
+The repo now writes real parquet files for request, response, and metrics tables.
+Nested fields such as maps/lists are serialized into JSON strings inside parquet cells to keep the artifact writer deterministic and lightweight.
 
 ## Development checks
 
@@ -114,7 +132,7 @@ make lint
 make format-check
 make typecheck
 make test
-make verify-m1
+make verify-m2
 ```
 
 ## Repository layout
@@ -128,7 +146,7 @@ make verify-m1
 ## Roadmap
 
 Planned execution order lives in `docs/03-milestones.md`.
-The next work order after M1 is M2: real vLLM integration plus official metrics ingestion.
+This repo is still working through M2: the remaining blocker is producing a real vLLM artifact pack and official-tool cross-check on a machine that actually has the required runtime.
 
 ## Public-sharing guidance
 

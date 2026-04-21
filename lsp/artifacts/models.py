@@ -1,11 +1,14 @@
 from __future__ import annotations
 
+import json
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
+import pyarrow.parquet as pq
+
 from lsp.config.models import ValidationError
 
-ARTIFACT_SCHEMA_VERSION = "synthetic.v1"
+ARTIFACT_SCHEMA_VERSION = "artifact.v2"
 
 
 @dataclass(frozen=True)
@@ -28,6 +31,8 @@ class RunMetadata:
     synthetic: bool
     repro_command: str
     notes: list[str]
+    failure_reason: str | None = None
+    runtime_metadata: dict[str, object] | None = None
 
     def to_dict(self) -> dict[str, object]:
         return asdict(self)
@@ -37,6 +42,14 @@ class RunMetadata:
 class ArtifactBundle:
     run_dir: Path
     metadata: RunMetadata
+
+
+def _parquet_row_count(path: Path) -> int:
+    try:
+        table = pq.read_table(path)  # type: ignore[no-untyped-call]
+    except Exception as exc:  # pragma: no cover - exact pyarrow errors are version-specific
+        raise ValidationError(f"invalid parquet file: {path.name}") from exc
+    return int(table.num_rows)
 
 
 def validate_artifact_dir(run_dir: Path) -> ArtifactBundle:
@@ -59,8 +72,6 @@ def validate_artifact_dir(run_dir: Path) -> ArtifactBundle:
     if not plots_dir.exists() or not plots_dir.is_dir():
         raise ValidationError("artifact directory missing plots/ directory")
 
-    import json
-
     run_path = run_dir / "run.json"
     metadata_raw = json.loads(run_path.read_text(encoding="utf-8"))
     if metadata_raw.get("schema_version") != ARTIFACT_SCHEMA_VERSION:
@@ -68,8 +79,7 @@ def validate_artifact_dir(run_dir: Path) -> ArtifactBundle:
     if not metadata_raw.get("repro_command"):
         raise ValidationError("artifact repro_command must be non-empty")
     if metadata_raw.get("status") == "success":
-        metrics_lines = (run_dir / "metrics.parquet").read_text(encoding="utf-8").strip()
-        if not metrics_lines:
+        if _parquet_row_count(run_dir / "metrics.parquet") <= 0:
             raise ValidationError("successful run must write non-empty metrics.parquet")
 
     return ArtifactBundle(

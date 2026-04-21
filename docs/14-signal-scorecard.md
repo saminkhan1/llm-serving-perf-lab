@@ -98,3 +98,10 @@ Aim for at least:
 - Performance depth >= 4
 - Public legibility >= 4
 - OSS / external signal >= 3
+
+For the current target role family of this repo, also aim for:
+- Serving-stack credibility >= 4
+- Observability and regression discipline >= 4
+- Routing and systems judgment >= 3
+
+If those thresholds are not met, the repo is more likely to read as benchmarking support work than as a strong inference / performance centerpiece.

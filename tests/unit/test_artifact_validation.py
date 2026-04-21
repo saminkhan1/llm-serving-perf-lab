@@ -4,6 +4,8 @@ import json
 import unittest
 from pathlib import Path
 
+import pyarrow.parquet as pq
+
 from lsp.artifacts.models import ARTIFACT_SCHEMA_VERSION, validate_artifact_dir
 from lsp.config.models import ValidationError
 
@@ -26,6 +28,7 @@ class ArtifactValidationTests(unittest.TestCase):
         payload = json.loads((run_dir / "run.json").read_text(encoding="utf-8"))
         self.assertEqual(payload["status"], "success")
         self.assertEqual(payload["schema_version"], ARTIFACT_SCHEMA_VERSION)
+        self.assertGreater(pq.read_table(run_dir / "metrics.parquet").num_rows, 0)
 
 
 if __name__ == "__main__":

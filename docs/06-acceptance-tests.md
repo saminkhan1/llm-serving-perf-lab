@@ -138,4 +138,11 @@ make reproduce RUN=m0
 make reproduce RUN=m1
 ```
 
+For M2 real-mode bring-up, the stable repo entrypoint is:
+```bash
+make reproduce RUN=m2-real REPRO_WORKLOAD=configs/workloads/chat_short.yaml
+```
+
+That command is only a reproducible repo entrypoint, not a guarantee that the local machine has the required vLLM, GPU, or external cross-check dependencies.
+
 If a result cannot be reproduced from repo state and stored artifacts, it does not count.

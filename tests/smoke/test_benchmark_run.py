@@ -7,6 +7,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
+import pyarrow.parquet as pq
+
 from lsp.artifacts.models import ARTIFACT_SCHEMA_VERSION
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -56,10 +58,8 @@ class BenchmarkRunSmokeTests(unittest.TestCase):
         self.assertIn("synthetic", " ".join(metadata["notes"]).lower())
         self.assertEqual(metadata["schema_version"], ARTIFACT_SCHEMA_VERSION)
 
-        metrics_rows = (run_dir / "metrics.parquet").read_text(encoding="utf-8").strip()
-        requests_rows = (run_dir / "requests.parquet").read_text(encoding="utf-8").strip()
-        self.assertTrue(metrics_rows)
-        self.assertTrue(requests_rows)
+        self.assertGreater(pq.read_table(run_dir / "metrics.parquet").num_rows, 0)
+        self.assertGreater(pq.read_table(run_dir / "requests.parquet").num_rows, 0)
 
     def test_make_reproduce_m1_alias(self) -> None:
         temp_root = Path(tempfile.mkdtemp(prefix="lsp-m1-repro-", dir=REPO_ROOT / "artifacts"))

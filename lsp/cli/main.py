@@ -6,9 +6,16 @@ import sys
 from pathlib import Path
 
 from lsp.artifacts.models import validate_artifact_dir
-from lsp.benchmark_runner import run_benchmark
+from lsp.benchmark_runner import BenchmarkRunFailed, run_benchmark
 from lsp.config.loader import load_config, validate_example_configs
+from lsp.config.models import BackendConfig, ValidationError, WorkloadConfig
 from lsp.fake_run import run_fake_benchmark
+from lsp.m2_scaffolding import (
+    build_guidellm_cross_check_plan,
+    build_vllm_launch_plan,
+    execute_guidellm_cross_check,
+    format_plan_json,
+)
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -34,7 +41,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     run_parser = subparsers.add_parser(
         "run",
-        help="Run the deterministic M1 benchmark harness in dry-run mode.",
+        help="Run the benchmark harness in dry-run mode or through the M2 vLLM adapter path.",
     )
     run_parser.add_argument("--backend-config", type=Path, required=True)
     run_parser.add_argument("--workload-config", type=Path, required=True)
@@ -45,7 +52,7 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help=(
             "Use the synthetic M1 harness path. "
-            "Real backend integration is not available until M2."
+            "Without this flag the M2 real backend adapter path is used."
         ),
     )
 
@@ -53,6 +60,25 @@ def build_parser() -> argparse.ArgumentParser:
         "validate-artifact", help="Validate an emitted artifact directory."
     )
     validate_artifact_parser.add_argument("run_dir", type=Path)
+
+    launch_plan_parser = subparsers.add_parser(
+        "render-vllm-launch",
+        help="Render the repo-owned vLLM launch or attach plan from a backend config.",
+    )
+    launch_plan_parser.add_argument("--backend-config", type=Path, required=True)
+
+    cross_check_parser = subparsers.add_parser(
+        "cross-check-guidellm",
+        help="Render or execute the external GuideLLM cross-check plan for an M2 workload.",
+    )
+    cross_check_parser.add_argument("--backend-config", type=Path, required=True)
+    cross_check_parser.add_argument("--workload-config", type=Path, required=True)
+    cross_check_parser.add_argument("--output-dir", type=Path, default=Path("artifacts"))
+    cross_check_parser.add_argument(
+        "--execute",
+        action="store_true",
+        help="Run the rendered GuideLLM command. Fails if GuideLLM is not installed.",
+    )
 
     return parser
 
@@ -83,20 +109,49 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     if args.command == "run":
-        bundle = run_benchmark(
-            backend_config_path=args.backend_config,
-            workload_config_path=args.workload_config,
-            output_dir=args.output_dir,
-            run_id=args.run_id,
-            argv=argv or sys.argv[1:],
-            dry_run=args.dry_run,
-        )
+        try:
+            bundle = run_benchmark(
+                backend_config_path=args.backend_config,
+                workload_config_path=args.workload_config,
+                output_dir=args.output_dir,
+                run_id=args.run_id,
+                argv=argv or sys.argv[1:],
+                dry_run=args.dry_run,
+            )
+        except BenchmarkRunFailed as exc:
+            print(str(exc.bundle.run_dir), file=sys.stderr)
+            print(str(exc), file=sys.stderr)
+            return 1
         print(str(bundle.run_dir))
         return 0
 
     if args.command == "validate-artifact":
         bundle = validate_artifact_dir(args.run_dir)
         print(json.dumps(bundle.metadata.to_dict(), indent=2, sort_keys=True))
+        return 0
+
+    if args.command == "render-vllm-launch":
+        config = load_config(args.backend_config)
+        if not isinstance(config, BackendConfig):
+            raise ValidationError("render-vllm-launch requires a backend config")
+        print(format_plan_json(build_vllm_launch_plan(config)))
+        return 0
+
+    if args.command == "cross-check-guidellm":
+        backend = load_config(args.backend_config)
+        workload = load_config(args.workload_config)
+        if not isinstance(backend, BackendConfig):
+            raise ValidationError("cross-check-guidellm requires a backend config")
+        if not isinstance(workload, WorkloadConfig):
+            raise ValidationError("cross-check-guidellm requires a workload config")
+        plan = build_guidellm_cross_check_plan(
+            backend=backend,
+            workload=workload,
+            output_dir=args.output_dir,
+        )
+        if args.execute:
+            return execute_guidellm_cross_check(plan, cwd=Path.cwd())
+        print(format_plan_json(plan))
         return 0
 
     parser.error("unhandled command")

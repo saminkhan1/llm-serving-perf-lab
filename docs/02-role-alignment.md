@@ -2,6 +2,36 @@
 
 This document exists to keep the project aligned with what current inference / performance roles actually reward.
 
+## Primary target roles
+
+Optimize this repo first for:
+- inference systems
+- workload / performance engineering
+- inference deployment / launch engineering
+- cloud inference / routing / cost-efficiency roles
+
+This maps most directly to the current role shapes at:
+- OpenAI Model Inference
+- OpenAI Workload Enablement
+- Anthropic Inference
+- Anthropic Cloud Inference
+- Anthropic Inference Deployment
+
+## Secondary / stretch target roles
+
+Treat these as stretch alignment, not the main ROI story:
+- kernel / accelerator bring-up
+- deep compiler / runtime optimization
+- heterogeneous cluster scheduling / supercomputing roles
+- physical-AI infra roles centered on large training fleets
+
+Those roles usually require more evidence in:
+- low-level kernel work
+- collective communication tuning
+- new hardware bring-up
+- multi-accelerator or multi-cluster placement
+- upstream-facing systems debugging
+
 ## What the roles tend to reward
 
 ### OpenAI-style inference roles
@@ -31,6 +61,19 @@ What your repo should show:
 - regression gates
 - topology / scaling study
 - clear boundary of claims
+
+### Meta / physical-AI-style infra roles
+Signal:
+- placement and scheduling decisions under resource constraints
+- heterogeneous hardware awareness
+- topology and communication reasoning
+- operational tooling that keeps ML systems usable by researchers
+
+What your repo should show:
+- explicit placement and routing logic
+- topology / worker-count or transfer-delay study
+- reproducible operational artifacts instead of prose-only claims
+- clear accounting of hardware, model, workload, and limits
 
 ### Anthropic-style inference / cloud inference roles
 Signal:
@@ -109,6 +152,19 @@ It does **not** magically replace years of professional experience on its own.
 So the project must do two things:
 1. prove strong technical judgment through artifacts
 2. minimize anything that makes it look like an academic or speculative side project
+
+## Inbound-interest bar
+
+If the goal is inbound recruiter or hiring-manager interest for frontier-lab-style inference roles, assume the repo must reach at least:
+- one real vLLM artifact pack
+- one honest SGLang PD study
+- one regression gate artifact
+- one profiler-backed optimization artifact
+- one routing or placement study
+- one upstream issue / PR
+- one README / writeup that leads with measured findings
+
+Anything less can still help in interviews, but is less likely to read as a top-of-stack proof-of-work project.
 
 ## If you only had time for four things
 

@@ -92,6 +92,37 @@ class BackendConfig(ConfigDocument):
             _ensure_type(payload["launch"], dict, "vllm backend config.launch")
             _ensure_type(payload["metrics"], dict, "vllm backend config.metrics")
             _ensure_type(payload["artifacts"], dict, "vllm backend config.artifacts")
+            launch = payload["launch"]
+            if "command" in launch and launch["command"] is not None:
+                _ensure_type(launch["command"], list, "vllm backend config.launch.command")
+            if "command_template" in launch and launch["command_template"] is not None:
+                _ensure_type(
+                    launch["command_template"],
+                    list,
+                    "vllm backend config.launch.command_template",
+                )
+            if "attach_mode" in launch:
+                attach_mode = launch["attach_mode"]
+                _ensure_type(attach_mode, str, "vllm backend config.launch.attach_mode")
+                if attach_mode not in {"external", "spawn"}:
+                    raise ValidationError(
+                        "vllm backend config.launch.attach_mode must be one of: external, spawn"
+                    )
+            metrics = payload["metrics"]
+            if "scrape_endpoint" not in metrics:
+                raise ValidationError(
+                    "vllm backend config.metrics missing required key: scrape_endpoint"
+                )
+            _ensure_type(
+                metrics["scrape_endpoint"],
+                str,
+                "vllm backend config.metrics.scrape_endpoint",
+            )
+            if "scrape_interval_seconds" in metrics:
+                _ensure_non_negative_number(
+                    metrics["scrape_interval_seconds"],
+                    "vllm backend config.metrics.scrape_interval_seconds",
+                )
         elif backend == "sglang":
             _require_keys(
                 payload,

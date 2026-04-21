@@ -11,7 +11,7 @@
   "policy_id": "none",
   "repro_command": "python3 -m lsp.cli.main fake-run",
   "run_id": "invalid-run",
-  "schema_version": "synthetic.v1",
+  "schema_version": "artifact.v2",
   "seed": 7,
   "start_time_utc": "2026-04-21T00:00:00+00:00",
   "status": "success",

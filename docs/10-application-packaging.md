@@ -41,6 +41,8 @@ You have:
 
 At Gold, the repo can absolutely be a lead project in applications.
 
+For the specific target roles of this repo, Gold is the practical minimum bar before expecting meaningful inbound interest.
+
 ### Platinum — exceptional independent signal
 You have:
 - all Gold requirements
@@ -70,6 +72,9 @@ Use a short version:
 Use:
 > The repo is meant to look like a compact inference-performance team project, not a toy benchmark wrapper. It has real backend bring-up, workload-shaped evaluation, rollout logic, profiling, and public writeups tied to reproducible artifacts.
 
+For physical-AI / infra-adjacent roles, add:
+> I also used it to study placement and operational tradeoffs under constrained hardware, not just model latency in isolation.
+
 ## Engineer interview demo flow
 
 In 5 minutes:
@@ -86,6 +91,7 @@ Do not say:
 - “I recreated what frontier labs do”
 - “This is production-ready”
 - “It supports many backends” as the headline
+- “I do kernel engineering” unless the profiler-backed optimization artifact is genuinely low-level and defensible
 
 Say:
 - “I used this repo to study serving tradeoffs and package the results as reproducible artifacts.”
@@ -97,6 +103,7 @@ You should be able to answer yes to all:
 - Can I show one honest PD study?
 - Can I show one regression gate blocking a bad candidate?
 - Can I show one profiler-backed bottleneck analysis?
+- Can I show one routing or placement decision with explicit tradeoffs?
 - Can I reproduce the highlighted results?
 - Can I point to one upstream contribution?
 - Is the README above-the-fold focused on measured findings, not architecture?

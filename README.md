@@ -53,7 +53,7 @@ This project must **not** become:
 ## Folder overview
 
 - `docs/` — the source-of-truth project contract
-- `examples/configs/` — minimal starter configs
+- `configs/` — repo configs validated by the M0 CLI
 - `kickoff/` — first message to send to your coding agent
 - `AGENTS.md` — root instructions for the repo
 

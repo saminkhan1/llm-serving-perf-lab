@@ -1,8 +1,8 @@
 experiment_id: pd_sweep_v1
 
 baseline:
-  backend_config: examples/configs/backends/sglang_pd_single_node.yaml
-  workload_config: examples/configs/workloads/sharegpt_like.yaml
+  backend_config: configs/backends/sglang_pd_single_node.yaml
+  workload_config: configs/workloads/sharegpt_like.yaml
 
 objective:
   name: minimize_p95_subject_to_throughput_floor

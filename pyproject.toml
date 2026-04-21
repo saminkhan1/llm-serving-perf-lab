@@ -7,6 +7,7 @@ name = "llm-serving-perf-lab"
 version = "0.1.0"
 description = "Hiring-signal-first LLM serving performance lab."
 readme = "README.md"
+license = { file = "LICENSE" }
 requires-python = ">=3.12"
 dependencies = [
   "PyYAML>=6.0",

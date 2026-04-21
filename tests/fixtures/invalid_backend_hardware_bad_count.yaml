@@ -1,0 +1,24 @@
+backend: vllm
+mode: serve
+model_id: meta-llama/Llama-3.2-1B-Instruct
+host: 127.0.0.1
+port: 8000
+
+hardware:
+  provider: local
+  accelerator: NVIDIA L4
+  accelerator_count: 0
+
+launch:
+  attach_mode: external
+  startup_timeout_seconds: 60
+  healthcheck_interval_seconds: 0.5
+  request_timeout_seconds: 30
+
+metrics:
+  scrape_endpoint: http://127.0.0.1:8000/metrics
+  scrape_interval_seconds: 2
+
+artifacts:
+  capture_runtime_metadata: true
+  write_plots: true

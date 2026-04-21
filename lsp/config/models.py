@@ -29,6 +29,14 @@ def _ensure_type(value: Any, expected: type[Any] | tuple[type[Any], ...], contex
         raise ValidationError(f"{context} has invalid type {type(value).__name__}")
 
 
+def _ensure_non_empty_str(value: Any, context: str) -> str:
+    _ensure_type(value, str, context)
+    text = str(value).strip()
+    if not text:
+        raise ValidationError(f"{context} must be a non-empty string")
+    return text
+
+
 def _ensure_positive_int(value: Any, context: str) -> int:
     _ensure_type(value, int, context)
     if value <= 0:
@@ -64,6 +72,39 @@ def _ensure_http_url(
     if strip_trailing_slash and text.endswith("/"):
         text = text.rstrip("/")
     return text
+
+
+def _ensure_string_list(value: Any, context: str) -> list[str]:
+    _ensure_type(value, list, context)
+    if not all(isinstance(item, str) and item.strip() for item in value):
+        raise ValidationError(f"{context} must be a list of non-empty strings")
+    return [str(item).strip() for item in value]
+
+
+def _validate_hardware_metadata(payload: Any, *, context: str) -> None:
+    _ensure_type(payload, dict, context)
+    _require_keys(
+        payload,
+        required={"provider", "accelerator", "accelerator_count"},
+        allowed={
+            "provider",
+            "accelerator",
+            "accelerator_count",
+            "region",
+            "instance_type",
+            "notes",
+        },
+        context=context,
+    )
+    _ensure_non_empty_str(payload["provider"], f"{context}.provider")
+    _ensure_non_empty_str(payload["accelerator"], f"{context}.accelerator")
+    _ensure_positive_int(payload["accelerator_count"], f"{context}.accelerator_count")
+    if "region" in payload:
+        _ensure_non_empty_str(payload["region"], f"{context}.region")
+    if "instance_type" in payload:
+        _ensure_non_empty_str(payload["instance_type"], f"{context}.instance_type")
+    if "notes" in payload:
+        _ensure_string_list(payload["notes"], f"{context}.notes")
 
 
 @dataclass(frozen=True)
@@ -103,6 +144,7 @@ class BackendConfig(ConfigDocument):
                     "base_url",
                     "host",
                     "port",
+                    "hardware",
                     "launch",
                     "metrics",
                     "artifacts",
@@ -112,6 +154,10 @@ class BackendConfig(ConfigDocument):
             _ensure_type(payload["launch"], dict, "vllm backend config.launch")
             _ensure_type(payload["metrics"], dict, "vllm backend config.metrics")
             _ensure_type(payload["artifacts"], dict, "vllm backend config.artifacts")
+            if "hardware" in payload:
+                _validate_hardware_metadata(
+                    payload["hardware"], context="vllm backend config.hardware"
+                )
             has_base_url = "base_url" in payload
             has_host = "host" in payload
             has_port = "port" in payload
@@ -180,6 +226,7 @@ class BackendConfig(ConfigDocument):
                     "backend",
                     "mode",
                     "model_id",
+                    "hardware",
                     "router",
                     "workers",
                     "transfer",
@@ -191,6 +238,10 @@ class BackendConfig(ConfigDocument):
             _ensure_type(payload["workers"], dict, "sglang backend config.workers")
             _ensure_type(payload["transfer"], dict, "sglang backend config.transfer")
             _ensure_type(payload["artifacts"], dict, "sglang backend config.artifacts")
+            if "hardware" in payload:
+                _validate_hardware_metadata(
+                    payload["hardware"], context="sglang backend config.hardware"
+                )
             workers = payload["workers"]
             for role in ("prefill", "decode"):
                 if role not in workers:

@@ -6,7 +6,7 @@ UV_RUN = UV_CACHE_DIR=$(UV_CACHE_DIR) $(UV) run
 UV_SYNC = UV_CACHE_DIR=$(UV_CACHE_DIR) $(UV) sync --extra dev
 CLI = $(UV_RUN) python3 -m lsp.cli.main
 
-.PHONY: install smoke validate-examples fake-run run reproduce test lint format-check typecheck verify-m0 verify-m1 verify-m2
+.PHONY: install smoke validate-examples fake-run run reproduce test lint format-check typecheck verify-m0 verify-m1 verify-m2 check-m2-readiness probe-m2
 
 install:
 	$(UV_SYNC)
@@ -68,3 +68,9 @@ verify-m1: lint format-check typecheck test validate-examples
 verify-m2: lint format-check typecheck test validate-examples
 	$(CLI) render-vllm-launch --backend-config $(BACKEND_CONFIG)
 	$(CLI) cross-check-guidellm --backend-config $(BACKEND_CONFIG) --workload-config configs/workloads/chat_short.yaml
+
+check-m2-readiness:
+	$(CLI) check-m2-readiness --backend-config $(BACKEND_CONFIG)
+
+probe-m2:
+	$(CLI) probe-vllm-target --backend-config $(BACKEND_CONFIG)

@@ -162,6 +162,7 @@ Hardware:
 - 1x NVIDIA 24 GB class GPU
 
 Good fits:
+- L40S
 - RTX 3090
 - L4
 - A10G
@@ -176,6 +177,16 @@ Provider order:
 Why:
 - this is the best milestone for cheap or free single-GPU bring-up
 - you only need one strong real artifact, not a long-lived cluster
+
+Current default first attempt:
+- provider: Modal free credits
+- GPU: `1x L40S`
+- model: `Qwen/Qwen2.5-1.5B-Instruct`
+
+Why this default:
+- it avoids Hugging Face gating friction from models like `meta-llama/Llama-3.2-1B-Instruct`
+- it keeps the first proof focused on serving discipline, not model-access troubleshooting
+- it preserves headroom to switch hardware or provider later if M2 needs a narrower rerun
 
 ### M3 — Portfolio Checkpoint A
 
@@ -312,9 +323,13 @@ Milestones:
 - one narrow rerun if the first result is close but not portfolio-grade
 
 Repo path:
+- deploy the official Modal vLLM example first with the chosen first-pass model and GPU
 - fill in `configs/backends/vllm_modal_example.yaml`
+- run `make check-m2-readiness BACKEND_CONFIG=configs/backends/vllm_modal_example.yaml`
+- run `make probe-m2 BACKEND_CONFIG=configs/backends/vllm_modal_example.yaml`
 - point `base_url` at the deployed Modal endpoint root
 - run `make reproduce RUN=m2-real REPRO_BACKEND=configs/backends/vllm_modal_example.yaml`
+- run the GuideLLM cross-check into `artifacts/<run_id>/guidellm`
 
 Stop using Modal for the main path when:
 - the monthly free credit would force artificial delays

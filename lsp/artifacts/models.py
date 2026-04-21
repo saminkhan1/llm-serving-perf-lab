@@ -31,6 +31,7 @@ class RunMetadata:
     synthetic: bool
     repro_command: str
     notes: list[str]
+    hardware_metadata: dict[str, object] | None = None
     failure_reason: str | None = None
     runtime_metadata: dict[str, object] | None = None
 

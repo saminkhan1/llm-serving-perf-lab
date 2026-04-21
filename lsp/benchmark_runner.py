@@ -12,6 +12,7 @@ from lsp.artifacts.writer import write_artifact_bundle
 from lsp.backends import BackendLifecycleError, build_vllm_adapter
 from lsp.config.loader import load_config
 from lsp.config.models import BackendConfig, ValidationError, WorkloadConfig
+from lsp.m2_scaffolding import describe_backend_hardware
 from lsp.workloads import NormalizedRequest, generate_requests
 
 
@@ -89,6 +90,8 @@ def _build_real_report_lines(
     run_id: str,
     backend: BackendConfig,
     workload: WorkloadConfig,
+    hardware_profile: str,
+    hardware_metadata: dict[str, object] | None,
     request_count: int,
     response_count: int,
     metric_rows: int,
@@ -112,6 +115,7 @@ def _build_real_report_lines(
         "",
         f"- run_id: `{run_id}`",
         f"- backend: `{backend.backend}`",
+        f"- hardware: `{hardware_profile}`",
         f"- workload: `{workload.workload_id}`",
         f"- request_rows: `{request_count}`",
         f"- response_rows: `{response_count}`",
@@ -143,6 +147,13 @@ def _build_real_report_lines(
         ),
     ]
 
+    if hardware_metadata is not None:
+        hardware_notes = hardware_metadata.get("notes")
+        if isinstance(hardware_notes, list):
+            for note in hardware_notes:
+                if isinstance(note, str) and note:
+                    lines.append(f"- hardware_note: {note}")
+
     version_payload = runtime_metadata.get("version_payload")
     if isinstance(version_payload, dict):
         lines.append(f"- version_payload: `{version_payload}`")
@@ -165,6 +176,8 @@ def _write_failure_artifact(
     failure_reason: str,
     notes: list[str],
     runtime_metadata: dict[str, object],
+    hardware_profile: str,
+    hardware_metadata: dict[str, object] | None,
 ) -> ArtifactBundle:
     metadata = RunMetadata(
         schema_version=ARTIFACT_SCHEMA_VERSION,
@@ -181,7 +194,8 @@ def _write_failure_artifact(
         end_time_utc=end_time.isoformat(),
         git_commit=commit,
         git_dirty=dirty,
-        hardware_profile=f"{platform.system()}-{platform.machine()}",
+        hardware_profile=hardware_profile,
+        hardware_metadata=hardware_metadata,
         synthetic=False,
         repro_command=f"python3 -m lsp.cli.main {' '.join(argv)}",
         notes=notes,
@@ -199,6 +213,8 @@ def _write_failure_artifact(
         "platform": platform.platform(),
         "processor": platform.processor(),
         "mode": "serve",
+        "hardware_profile": hardware_profile,
+        "hardware_metadata": hardware_metadata,
         "runtime_metadata": runtime_metadata,
         "failure_reason": failure_reason,
     }
@@ -207,6 +223,7 @@ def _write_failure_artifact(
         "",
         f"- run_id: `{run_id}`",
         f"- backend: `{backend.backend}`",
+        f"- hardware: `{hardware_profile}`",
         f"- workload: `{workload.workload_id}`",
         f"- failure_reason: `{failure_reason}`",
     ]
@@ -234,6 +251,10 @@ def _run_real_benchmark(
     commit: str,
     dirty: bool,
 ) -> ArtifactBundle:
+    hardware_profile, hardware_metadata = describe_backend_hardware(backend, require_explicit=True)
+    if hardware_profile is None:
+        raise ValidationError("real benchmark runs require resolved hardware metadata")
+
     adapter = build_vllm_adapter(backend)
     requests = generate_requests(workload)
     start_time = datetime.now(UTC)
@@ -304,7 +325,8 @@ def _run_real_benchmark(
             end_time_utc=end_time.isoformat(),
             git_commit=commit,
             git_dirty=dirty,
-            hardware_profile=f"{platform.system()}-{platform.machine()}",
+            hardware_profile=hardware_profile,
+            hardware_metadata=hardware_metadata,
             synthetic=False,
             repro_command=f"python3 -m lsp.cli.main {' '.join(argv)}",
             notes=notes,
@@ -324,6 +346,8 @@ def _run_real_benchmark(
             "platform": platform.platform(),
             "processor": platform.processor(),
             "mode": "serve",
+            "hardware_profile": hardware_profile,
+            "hardware_metadata": hardware_metadata,
             "runtime_metadata": runtime_metadata,
             "official_metrics_missing": official_missing,
         }
@@ -331,6 +355,8 @@ def _run_real_benchmark(
             run_id=resolved_run_id,
             backend=backend,
             workload=workload,
+            hardware_profile=hardware_profile,
+            hardware_metadata=hardware_metadata,
             request_count=len(requests),
             response_count=len(responses),
             metric_rows=len(metrics),
@@ -366,6 +392,8 @@ def _run_real_benchmark(
             failure_reason=str(exc),
             notes=notes,
             runtime_metadata=runtime_metadata,
+            hardware_profile=hardware_profile,
+            hardware_metadata=hardware_metadata,
         )
         raise BenchmarkRunFailed(bundle, str(exc)) from exc
     finally:
@@ -433,6 +461,7 @@ def run_benchmark(
         git_commit=commit,
         git_dirty=dirty,
         hardware_profile=f"{platform.system()}-{platform.machine()}",
+        hardware_metadata=None,
         synthetic=True,
         repro_command=f"python3 -m lsp.cli.main {' '.join(argv)}",
         notes=[

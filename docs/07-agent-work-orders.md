@@ -80,6 +80,17 @@ Implement vLLM adapter, real run path, and official metrics ingestion.
 - no fragile log parsing if structured metrics exist
 - dry-run must remain GPU-free
 
+### Current execution choice
+- stand up the first real endpoint from Modal's official vLLM example before changing repo code again
+- prefer one small ungated model for the first proof run, currently `Qwen/Qwen2.5-1.5B-Instruct`
+- prefer `1x L40S` for the first Modal attempt because it is a simpler single-GPU fit than jumping to larger spend
+- use repo-side checks in this order once the endpoint exists:
+  - `make check-m2-readiness BACKEND_CONFIG=configs/backends/vllm_modal_example.yaml`
+  - `make probe-m2 BACKEND_CONFIG=configs/backends/vllm_modal_example.yaml`
+  - `make reproduce RUN=m2-real ...`
+  - `uv run lsp cross-check-guidellm ... --execute`
+- treat the external GPU-backed benchmark run as the final M2 step, not as setup work to mix with local repo changes
+
 ### Definition of done
 - one real run completes
 - artifacts include repro command and caveats

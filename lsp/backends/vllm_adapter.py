@@ -252,6 +252,9 @@ class VLLMAdapter(BackendAdapter):
             return implementation, runtime_metadata
         return None, runtime_metadata
 
+    def fetch_runtime_metadata(self) -> tuple[str | None, dict[str, Any]]:
+        return self._fetch_runtime_metadata()
+
     def submit(self, request_payload: NormalizedRequest) -> BackendResponse:
         payload = {
             "model": self.config.model_id,

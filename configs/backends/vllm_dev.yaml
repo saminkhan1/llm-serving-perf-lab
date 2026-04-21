@@ -3,6 +3,12 @@ mode: serve
 model_id: meta-llama/Llama-3.2-1B-Instruct
 host: 127.0.0.1
 port: 8000
+hardware:
+  provider: local
+  accelerator: replace-with-local-gpu-model
+  accelerator_count: 1
+  notes:
+    - Replace this hardware block before using the config for a real public artifact.
 
 launch:
   attach_mode: external

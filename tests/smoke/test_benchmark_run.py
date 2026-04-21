@@ -86,6 +86,63 @@ class BenchmarkRunSmokeTests(unittest.TestCase):
         self.assertTrue(metadata["synthetic"])
         self.assertEqual(metadata["schema_version"], ARTIFACT_SCHEMA_VERSION)
 
+    def test_real_mode_requires_explicit_hardware_metadata(self) -> None:
+        temp_root = Path(tempfile.mkdtemp(prefix="lsp-m2-hardware-", dir=REPO_ROOT / "artifacts"))
+        self.addCleanup(lambda: shutil.rmtree(temp_root, ignore_errors=True))
+        backend_config = temp_root / "backend.json"
+        backend_config.write_text(
+            json.dumps(
+                {
+                    "backend": "vllm",
+                    "mode": "serve",
+                    "model_id": "fake/local-test-model",
+                    "host": "127.0.0.1",
+                    "port": 18080,
+                    "launch": {
+                        "attach_mode": "external",
+                        "startup_timeout_seconds": 0.2,
+                        "healthcheck_interval_seconds": 0.05,
+                        "request_timeout_seconds": 0.1,
+                    },
+                    "metrics": {
+                        "scrape_endpoint": "http://127.0.0.1:18080/metrics",
+                        "scrape_interval_seconds": 1,
+                    },
+                    "artifacts": {
+                        "capture_runtime_metadata": True,
+                        "write_plots": True,
+                    },
+                },
+                indent=2,
+            ),
+            encoding="utf-8",
+        )
+
+        result = subprocess.run(
+            [
+                "python3",
+                "-m",
+                "lsp.cli.main",
+                "run",
+                "--backend-config",
+                str(backend_config),
+                "--workload-config",
+                "configs/workloads/chat_short.yaml",
+                "--output-dir",
+                str(temp_root),
+                "--run-id",
+                "missing-hardware",
+            ],
+            cwd=REPO_ROOT,
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("backend config.hardware", result.stderr)
+        self.assertFalse((temp_root / "missing-hardware").exists())
+
 
 if __name__ == "__main__":
     unittest.main()

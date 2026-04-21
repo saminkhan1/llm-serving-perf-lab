@@ -27,9 +27,11 @@ Current implemented scope:
 - deterministic workload generation for M1 workload families
 - synthetic fake-run and dry-run benchmark paths for smoke testing repo wiring
 - real-mode vLLM adapter path with official Prometheus `/metrics` ingestion and failure artifacts
+- explicit backend hardware metadata capture for real-mode artifact credibility
 - external `base_url` target support for Modal or other HTTPS vLLM deployments
 - repo-owned vLLM launch-plan rendering from `configs/backends/vllm_dev.yaml`
-- external GuideLLM cross-check scaffolding for M2 verification
+- endpoint probe for health, runtime metadata, and official metrics exposure
+- external GuideLLM cross-check scaffolding plus plan/log capture for M2 verification
 - unit and smoke tests
 - example configs for future milestones
 
@@ -59,6 +61,8 @@ Verify the current repo state:
 ```bash
 make verify-m2
 make verify-m2 BACKEND_CONFIG=configs/backends/vllm_modal_example.yaml
+make check-m2-readiness BACKEND_CONFIG=configs/backends/vllm_modal_example.yaml
+make probe-m2 BACKEND_CONFIG=configs/backends/vllm_modal_example.yaml
 make smoke
 make reproduce RUN=m1 REPRO_RUN_ID=demo-m1
 ```
@@ -84,7 +88,9 @@ It requires a reachable vLLM endpoint or a host where you can turn the repo laun
 On this machine that runtime dependency is missing, so the command is reproducible as repo scaffolding but not expected to succeed locally.
 
 For a Modal-backed M2 run, fill in `configs/backends/vllm_modal_example.yaml` with the deployed `https://...modal.run` URL from Modal's official vLLM example, then use `REPRO_BACKEND=configs/backends/vllm_modal_example.yaml`.
+Also replace the placeholder `hardware` block before the real run so the artifact names the tested GPU explicitly.
 The repo expects `base_url` to be the endpoint root, not `/v1`, because it derives `/health`, `/version`, `/v1/completions`, and reads `/metrics` from `metrics.scrape_endpoint`.
+Use `make check-m2-readiness BACKEND_CONFIG=configs/backends/vllm_modal_example.yaml` before the remote run to catch leftover placeholders and missing local tooling such as GuideLLM.
 
 Inspect the repo-owned M2 launch and cross-check scaffolding directly:
 
@@ -97,6 +103,8 @@ uv run lsp render-vllm-launch --backend-config configs/backends/vllm_modal_examp
 uv run lsp cross-check-guidellm \
   --backend-config configs/backends/vllm_modal_example.yaml \
   --workload-config configs/workloads/chat_short.yaml
+uv run lsp check-m2-readiness --backend-config configs/backends/vllm_modal_example.yaml
+uv run lsp probe-vllm-target --backend-config configs/backends/vllm_modal_example.yaml
 ```
 
 ## CLI
@@ -135,6 +143,8 @@ The shortest repo-owned path is:
 
 ```bash
 make verify-m2 BACKEND_CONFIG=configs/backends/vllm_modal_example.yaml
+make check-m2-readiness BACKEND_CONFIG=configs/backends/vllm_modal_example.yaml
+make probe-m2 BACKEND_CONFIG=configs/backends/vllm_modal_example.yaml
 make reproduce RUN=m2-real REPRO_BACKEND=configs/backends/vllm_modal_example.yaml REPRO_WORKLOAD=configs/workloads/chat_short.yaml REPRO_RUN_ID=<run_id>
 uv run lsp cross-check-guidellm \
   --backend-config configs/backends/vllm_modal_example.yaml \
@@ -155,6 +165,12 @@ A successful run artifact is expected to contain:
 - `responses.parquet`
 - `metrics.parquet`
 - `plots/`
+
+When the external GuideLLM cross-check is executed into `artifacts/<run_id>/guidellm`, the repo also persists:
+- `repo_cross_check_plan.json`
+- `repo_cross_check_execution.json`
+- `repo_cross_check_stdout.log`
+- `repo_cross_check_stderr.log`
 
 The repo now writes real parquet files for request, response, and metrics tables.
 Nested fields such as maps/lists are serialized into JSON strings inside parquet cells to keep the artifact writer deterministic and lightweight.

@@ -6,6 +6,7 @@ import sys
 from pathlib import Path
 
 from lsp.artifacts.models import validate_artifact_dir
+from lsp.backends import BackendLifecycleError
 from lsp.benchmark_runner import BenchmarkRunFailed, run_benchmark
 from lsp.config.loader import load_config, validate_example_configs
 from lsp.config.models import BackendConfig, ValidationError, WorkloadConfig
@@ -13,8 +14,10 @@ from lsp.fake_run import run_fake_benchmark
 from lsp.m2_scaffolding import (
     build_guidellm_cross_check_plan,
     build_vllm_launch_plan,
+    check_m2_readiness,
     execute_guidellm_cross_check,
     format_plan_json,
+    probe_vllm_target,
 )
 
 
@@ -80,6 +83,18 @@ def build_parser() -> argparse.ArgumentParser:
         help="Run the rendered GuideLLM command. Fails if GuideLLM is not installed.",
     )
 
+    probe_parser = subparsers.add_parser(
+        "probe-vllm-target",
+        help="Probe a reachable vLLM target for health, runtime metadata, and official metrics.",
+    )
+    probe_parser.add_argument("--backend-config", type=Path, required=True)
+
+    readiness_parser = subparsers.add_parser(
+        "check-m2-readiness",
+        help="Check whether repo config and local tools are ready for the final external M2 run.",
+    )
+    readiness_parser.add_argument("--backend-config", type=Path, required=True)
+
     return parser
 
 
@@ -122,6 +137,9 @@ def main(argv: list[str] | None = None) -> int:
             print(str(exc.bundle.run_dir), file=sys.stderr)
             print(str(exc), file=sys.stderr)
             return 1
+        except ValidationError as exc:
+            print(str(exc), file=sys.stderr)
+            return 2
         print(str(bundle.run_dir))
         return 0
 
@@ -153,6 +171,35 @@ def main(argv: list[str] | None = None) -> int:
             return execute_guidellm_cross_check(plan, cwd=Path.cwd())
         print(format_plan_json(plan))
         return 0
+
+    if args.command == "probe-vllm-target":
+        backend = load_config(args.backend_config)
+        if not isinstance(backend, BackendConfig):
+            raise ValidationError("probe-vllm-target requires a backend config")
+        try:
+            print(format_plan_json(probe_vllm_target(backend)))
+            return 0
+        except BackendLifecycleError as exc:
+            print(
+                format_plan_json(
+                    {
+                        "status": "failed",
+                        "backend": backend.backend,
+                        "model_id": backend.model_id,
+                        "failure_reason": str(exc),
+                    }
+                ),
+                file=sys.stderr,
+            )
+            return 1
+
+    if args.command == "check-m2-readiness":
+        backend = load_config(args.backend_config)
+        if not isinstance(backend, BackendConfig):
+            raise ValidationError("check-m2-readiness requires a backend config")
+        report = check_m2_readiness(backend)
+        print(format_plan_json(report))
+        return 0 if report["status"] == "ready" else 1
 
     parser.error("unhandled command")
     return 2

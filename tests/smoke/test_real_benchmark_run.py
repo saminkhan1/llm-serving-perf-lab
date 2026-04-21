@@ -54,6 +54,11 @@ def _write_backend_config_with_target(
         "backend": "vllm",
         "mode": "serve",
         "model_id": "fake/local-test-model",
+        "hardware": {
+            "provider": "test",
+            "accelerator": "fake-local-gpu",
+            "accelerator_count": 1,
+        },
         "launch": {
             "command": command,
             "startup_timeout_seconds": 0.6,
@@ -135,6 +140,8 @@ class RealBenchmarkSmokeTests(unittest.TestCase):
         self.assertEqual(metadata["mode"], "serve")
         self.assertFalse(metadata["synthetic"])
         self.assertEqual(metadata["schema_version"], ARTIFACT_SCHEMA_VERSION)
+        self.assertEqual(metadata["hardware_profile"], "fake-local-gpu x1 via test")
+        self.assertEqual(metadata["hardware_metadata"]["provider"], "test")
         self.assertIn("fake local backend", " ".join(metadata["notes"]).lower())
         self.assertEqual(metadata["backend_version"], "fake-vllm/0.2.0")
 
@@ -199,6 +206,7 @@ class RealBenchmarkSmokeTests(unittest.TestCase):
         self.assertEqual(metadata["status"], "success")
         self.assertFalse(metadata["synthetic"])
         self.assertEqual(metadata["backend_version"], "fake-vllm/0.2.0")
+        self.assertEqual(metadata["hardware_profile"], "fake-local-gpu x1 via test")
         self.assertEqual(metadata["runtime_metadata"]["base_url"], f"http://127.0.0.1:{port}")
 
     def test_real_mode_failure_writes_visible_artifact(self) -> None:
@@ -233,6 +241,7 @@ class RealBenchmarkSmokeTests(unittest.TestCase):
 
         metadata = json.loads((run_dir / "run.json").read_text(encoding="utf-8"))
         self.assertEqual(metadata["status"], "failed")
+        self.assertEqual(metadata["hardware_profile"], "fake-local-gpu x1 via test")
         self.assertIn("launch_timeout", str(metadata["failure_reason"]))
         report_text = (run_dir / "report.md").read_text(encoding="utf-8")
         self.assertIn("failure_reason", report_text)

@@ -37,6 +37,12 @@ class ConfigLoaderTests(unittest.TestCase):
         config_path = REPO_ROOT / "configs" / "backends" / "vllm_modal_example.yaml"
         config = load_config(config_path)
         self.assertEqual(config.kind, "backend")
+        self.assertEqual(config.to_dict()["resolved"]["hardware"]["provider"], "modal")
+
+    def test_invalid_hardware_metadata_fails_validation(self) -> None:
+        config_path = REPO_ROOT / "tests" / "fixtures" / "invalid_backend_hardware_bad_count.yaml"
+        with self.assertRaisesRegex(ValidationError, "accelerator_count must be > 0"):
+            load_config(config_path)
 
     def test_invalid_enum_fails_validation(self) -> None:
         config_path = REPO_ROOT / "tests" / "fixtures" / "invalid_threshold_bad_enum.yaml"

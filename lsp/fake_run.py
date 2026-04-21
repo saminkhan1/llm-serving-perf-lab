@@ -119,6 +119,7 @@ def run_fake_benchmark(
         git_commit=commit,
         git_dirty=dirty,
         hardware_profile=f"{platform.system()}-{platform.machine()}",
+        hardware_metadata=None,
         synthetic=True,
         repro_command=f"python3 -m lsp.cli.main {' '.join(argv)}",
         notes=[

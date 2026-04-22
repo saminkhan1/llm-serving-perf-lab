@@ -184,7 +184,7 @@ Current default first attempt:
 - model: `Qwen/Qwen2.5-1.5B-Instruct`
 
 Why this default:
-- it avoids Hugging Face gating friction from models like `meta-llama/Llama-3.2-1B-Instruct`
+- it avoids Hugging Face gating friction from gated alternatives
 - it keeps the first proof focused on serving discipline, not model-access troubleshooting
 - it preserves headroom to switch hardware or provider later if M2 needs a narrower rerun
 

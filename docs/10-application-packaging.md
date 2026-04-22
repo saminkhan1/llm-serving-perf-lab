@@ -6,7 +6,7 @@ This document turns the project into something usable in applications.
 
 Pair it with:
 - `docs/17-job-mapping-2026.md` for current role-language alignment
-- `docs/18-artifact-index-template.md` for public artifact linking
+- `docs/18-artifact-index.md` for current public artifact linking
 - `docs/19-proof-readiness-checklist.md` for the current safe-to-claim gate
 
 ## Reality check
@@ -62,11 +62,14 @@ You have:
 
 This is the strongest version of the project.
 
-## Default public framing while M2 is incomplete
+## Current public framing at Silver
 
 Use wording like:
 
-> Portfolio-in-progress. The repo has M2 scaffolding for real vLLM runs, official metrics ingestion, and artifact writing, but it does not yet have a checked-in real baseline artifact pack or public measured findings.
+> Interview-supporting. The repo has one real vLLM baseline and one GuideLLM cross-check for `Qwen/Qwen2.5-1.5B-Instruct` on `Modal L40S x1` with `chat_short`. Claims are bounded to that exact setup. Gold-level artifacts such as PD, regression gating, profiling, and upstream work are still pending.
+
+Current note:
+- `artifacts/m2-qwen-l40s-modal-chat-short-20260421-r3/report.md` predates the 2026-04-21 metric-contract cleanup, so its `official_metrics_missing` field includes stale names that current repo code no longer treats as required official vLLM metrics
 
 If that sentence becomes false, update it immediately.
 
@@ -81,6 +84,9 @@ Short repository description:
 > Compact inference-performance lab focused on reproducible artifacts, measured serving tradeoffs, and rollout-safe performance tooling.
 
 README findings block template after the first real artifact:
+
+At Silver, one bounded measured finding plus one clear caveat is enough.
+Expand to three findings only after more real artifacts exist.
 
 > Highlighted findings
 >
@@ -123,7 +129,7 @@ For physical-AI / infra-adjacent roles, add:
 ## Engineer interview demo flow
 
 In 5 minutes:
-1. show the 3 highlighted findings in the README
+1. show the current highlighted finding in the README and its caveat
 2. open one artifact directory
 3. show one compare output
 4. show one profiler-backed report section

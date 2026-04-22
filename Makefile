@@ -6,13 +6,16 @@ UV_RUN = UV_CACHE_DIR=$(UV_CACHE_DIR) $(UV) run
 UV_SYNC = UV_CACHE_DIR=$(UV_CACHE_DIR) $(UV) sync --extra dev
 CLI = $(UV_RUN) python3 -m lsp.cli.main
 
-.PHONY: install smoke validate-examples fake-run run reproduce test lint format-check typecheck verify-m0 verify-m1 verify-m2 check-m2-readiness probe-m2
+.PHONY: install smoke smoke-guidellm validate-examples fake-run run reproduce test lint format-check typecheck verify-m0 verify-m1 verify-m2 check-m2-readiness probe-m2
 
 install:
 	$(UV_SYNC)
 
 smoke:
 	$(UV_RUN) pytest tests/smoke/test_fake_run.py
+
+smoke-guidellm:
+	$(UV_RUN) pytest tests/smoke/test_guidellm_cross_check.py
 
 validate-examples:
 	$(CLI) validate-examples

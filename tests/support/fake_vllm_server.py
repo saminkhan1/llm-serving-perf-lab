@@ -10,44 +10,39 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 @dataclass
 class ServerState:
     mode: str
+    model_id: str = "fake/local-test-model"
     prompt_tokens_total: int = 0
     generation_tokens_total: int = 0
     request_success_total: int = 0
 
 
 def _metrics_payload(state: ServerState) -> str:
-    request_errors = 0.0
-    request_timeouts = 0.0
     return "\n".join(
         [
-            "# TYPE vllm:time_to_first_token_seconds gauge",
-            "vllm:time_to_first_token_seconds 0.012",
-            "# TYPE vllm:time_per_output_token_seconds gauge",
-            "vllm:time_per_output_token_seconds 0.004",
-            "# TYPE vllm:e2e_request_latency_seconds gauge",
-            "vllm:e2e_request_latency_seconds 0.028",
-            "# TYPE vllm:requests_running gauge",
-            "vllm:requests_running 0",
-            "# TYPE vllm:requests_waiting gauge",
-            "vllm:requests_waiting 0",
-            "# TYPE vllm:gpu_cache_usage_perc gauge",
-            "vllm:gpu_cache_usage_perc 12.5",
-            "# TYPE vllm:gpu_memory_usage_bytes gauge",
-            "vllm:gpu_memory_usage_bytes 1048576",
-            "# TYPE vllm:avg_prompt_throughput_toks_per_s gauge",
-            "vllm:avg_prompt_throughput_toks_per_s 512.0",
-            "# TYPE vllm:avg_generation_throughput_toks_per_s gauge",
-            "vllm:avg_generation_throughput_toks_per_s 256.0",
+            "# TYPE vllm:time_to_first_token_seconds histogram",
+            'vllm:time_to_first_token_seconds_bucket{le="0.05"} 1',
+            "vllm:time_to_first_token_seconds_sum 0.012",
+            "vllm:time_to_first_token_seconds_count 1",
+            "# TYPE vllm:request_time_per_output_token_seconds histogram",
+            'vllm:request_time_per_output_token_seconds_bucket{le="0.01"} 1',
+            "vllm:request_time_per_output_token_seconds_sum 0.004",
+            "vllm:request_time_per_output_token_seconds_count 1",
+            "# TYPE vllm:e2e_request_latency_seconds histogram",
+            'vllm:e2e_request_latency_seconds_bucket{le="0.05"} 1',
+            "vllm:e2e_request_latency_seconds_sum 0.028",
+            "vllm:e2e_request_latency_seconds_count 1",
+            "# TYPE vllm:num_requests_running gauge",
+            "vllm:num_requests_running 0",
+            "# TYPE vllm:num_requests_waiting gauge",
+            "vllm:num_requests_waiting 0",
+            "# TYPE vllm:kv_cache_usage_perc gauge",
+            "vllm:kv_cache_usage_perc 0.125",
             "# TYPE vllm:request_success_total counter",
             f"vllm:request_success_total {float(state.request_success_total):.1f}",
             "# TYPE vllm:prompt_tokens_total counter",
             f"vllm:prompt_tokens_total {float(state.prompt_tokens_total):.1f}",
             "# TYPE vllm:generation_tokens_total counter",
             f"vllm:generation_tokens_total {float(state.generation_tokens_total):.1f}",
-            "# TYPE vllm:request_error_total counter",
-            f"vllm:request_error_total {request_errors:.1f}",
-            "# TYPE vllm:request_timeout_total counter",
-            f"vllm:request_timeout_total {request_timeouts:.1f}",
             "",
         ]
     )
@@ -79,6 +74,22 @@ def build_handler(state: ServerState) -> type[BaseHTTPRequestHandler]:
                     },
                 )
                 return
+            if self.path == "/v1/models":
+                self._write_json(
+                    200,
+                    {
+                        "object": "list",
+                        "data": [
+                            {
+                                "id": state.model_id,
+                                "object": "model",
+                                "created": 0,
+                                "owned_by": "llm-serving-perf-lab",
+                            }
+                        ],
+                    },
+                )
+                return
             if self.path == "/metrics":
                 body = _metrics_payload(state).encode("utf-8")
                 self.send_response(200)
@@ -104,6 +115,7 @@ def build_handler(state: ServerState) -> type[BaseHTTPRequestHandler]:
             response = {
                 "id": f"cmpl-{state.request_success_total:04d}",
                 "object": "text_completion",
+                "model": state.model_id,
                 "choices": [
                     {
                         "text": f"FAKE_COMPLETION tokens={completion_tokens}",

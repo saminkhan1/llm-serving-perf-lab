@@ -9,18 +9,25 @@ _LABEL_RE = re.compile(r'([a-zA-Z_][a-zA-Z0-9_]*)="((?:[^"\\]|\\.)*)"')
 
 _EXPECTED_METRICS: dict[str, list[str]] = {
     "ttft_seconds": ["vllm:time_to_first_token_seconds"],
-    "time_per_output_token_seconds": ["vllm:time_per_output_token_seconds"],
+    "time_per_output_token_seconds": [
+        "vllm:request_time_per_output_token_seconds",
+        "vllm:time_per_output_token_seconds",
+    ],
     "e2e_request_latency_seconds": ["vllm:e2e_request_latency_seconds"],
-    "requests_running": ["vllm:requests_running"],
-    "queue_depth": ["vllm:requests_waiting"],
-    "gpu_cache_usage_perc": ["vllm:gpu_cache_usage_perc"],
-    "gpu_memory_usage_bytes": ["vllm:gpu_memory_usage_bytes"],
-    "prompt_throughput_tokens_per_second": ["vllm:avg_prompt_throughput_toks_per_s"],
-    "generation_throughput_tokens_per_second": ["vllm:avg_generation_throughput_toks_per_s"],
-    "request_success_total": ["vllm:request_success_total"],
-    "request_error_total": ["vllm:request_error_total"],
-    "request_timeout_total": ["vllm:request_timeout_total"],
+    "requests_running": ["vllm:num_requests_running", "vllm:requests_running"],
+    "queue_depth": ["vllm:num_requests_waiting", "vllm:requests_waiting"],
+    "gpu_cache_usage_perc": ["vllm:kv_cache_usage_perc", "vllm:gpu_cache_usage_perc"],
+    # Current vLLM production metrics document this counter without the OpenMetrics
+    # text-format suffix; Prometheus scrapes expose it as *_total.
+    "request_success_total": ["vllm:request_success", "vllm:request_success_total"],
 }
+
+
+def _has_metric_family(metric_names: set[str], candidate: str) -> bool:
+    if candidate in metric_names:
+        return True
+    prefix = f"{candidate}_"
+    return any(metric_name.startswith(prefix) for metric_name in metric_names)
 
 
 def _parse_labels(raw_labels: str | None) -> dict[str, str]:
@@ -64,7 +71,7 @@ def parse_prometheus_metrics(body: str, *, scrape_endpoint: str) -> list[dict[st
         )
 
     for semantic_name, candidates in _EXPECTED_METRICS.items():
-        if any(candidate in seen_metric_names for candidate in candidates):
+        if any(_has_metric_family(seen_metric_names, candidate) for candidate in candidates):
             continue
         rows.append(
             {

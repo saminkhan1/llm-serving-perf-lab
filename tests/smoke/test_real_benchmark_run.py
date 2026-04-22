@@ -151,7 +151,12 @@ class RealBenchmarkSmokeTests(unittest.TestCase):
 
         metrics_rows = pq.read_table(run_dir / "metrics.parquet").to_pylist()
         metric_names = {row.get("metric_name") for row in metrics_rows}
-        self.assertIn("vllm:time_to_first_token_seconds", metric_names)
+        self.assertTrue(
+            any(
+                isinstance(name, str) and name.startswith("vllm:time_to_first_token_seconds_")
+                for name in metric_names
+            )
+        )
         self.assertIn("client_request_latency_seconds", metric_names)
         self.assertFalse(
             any(row.get("missing") is True for row in metrics_rows if row.get("metric_name"))

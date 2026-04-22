@@ -1,6 +1,6 @@
 backend: vllm
 mode: serve
-model_id: meta-llama/Llama-3.2-1B-Instruct
+model_id: Qwen/Qwen2.5-1.5B-Instruct
 host: 127.0.0.1
 port: 8000
 launch: {}

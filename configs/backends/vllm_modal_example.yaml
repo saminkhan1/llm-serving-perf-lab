@@ -1,13 +1,15 @@
 backend: vllm
 mode: serve
-model_id: meta-llama/Llama-3.2-1B-Instruct
-base_url: https://your-workspace-name--example-vllm-inference-serve.modal.run
+model_id: Qwen/Qwen2.5-1.5B-Instruct
+base_url: https://saminkhan1--lsp-m2-qwen-vllm-serve.modal.run
 hardware:
   provider: modal
-  accelerator: replace-with-modal-gpu-sku
+  accelerator: L40S
   accelerator_count: 1
   notes:
-    - Replace this hardware block with the actual deployed GPU shape before the real M2 run.
+    - Deployed from scripts/modal_vllm_m2.py for the first real M2 baseline.
+    - Bound to one Modal-hosted L40S replica serving Qwen/Qwen2.5-1.5B-Instruct.
+    - Benchmark validity assumes the Modal app stays pinned to a single replica during the run.
 
 launch:
   attach_mode: external
@@ -16,7 +18,7 @@ launch:
   request_timeout_seconds: 60
 
 metrics:
-  scrape_endpoint: https://your-workspace-name--example-vllm-inference-serve.modal.run/metrics
+  scrape_endpoint: https://saminkhan1--lsp-m2-qwen-vllm-serve.modal.run/metrics
   scrape_interval_seconds: 2
 
 artifacts:

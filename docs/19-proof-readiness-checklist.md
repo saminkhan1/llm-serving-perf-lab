@@ -12,10 +12,16 @@ If the answer is "no" for the current stage, downgrade the wording in:
 
 ## Current default state
 
-Until the first real M2 artifact pack lands, the repo is:
-- portfolio-in-progress
-- useful for interview discussion
-- not yet safe to lead with as measured inference-performance proof
+The repo is currently at Silver:
+- one real M2 artifact pack exists at `artifacts/m2-qwen-l40s-modal-chat-short-20260421-r3`
+- one completed GuideLLM cross-check exists at `artifacts/m2-qwen-l40s-modal-chat-short-20260421-r3/guidellm`
+- one README measured-finding section now exists
+- one artifact-index entry now exists in `docs/18-artifact-index.md`
+- safe claims are bounded to `Modal L40S x1`, `Qwen/Qwen2.5-1.5B-Instruct`, and `chat_short`
+- the repo is interview-supporting, but not yet safe to lead with as a portfolio centerpiece
+
+Historical note:
+- the `official_metrics_missing` field in the April 21, 2026 `r3` report predates the same-day metric-contract cleanup and should not be interpreted as missing required current-core vLLM metrics
 
 ## Stage gates
 

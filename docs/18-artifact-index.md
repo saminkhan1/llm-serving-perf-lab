@@ -4,38 +4,32 @@ Use this file to point reviewers at the smallest number of artifacts needed to a
 
 ## Current hero artifacts
 
-| Artifact ID | Milestone | Status | Question Answered | Hardware | Model | Workload | Repro Command | Primary Report | Raw Data | Caveat |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `m2-qwen-l40s-modal-chat-short-20260421-r3` | M2 | hero | Can the repo produce one real vLLM baseline with official metrics capture and one completed GuideLLM cross-check on a single-GPU Modal deployment? | `Modal L40S x1` | `Qwen/Qwen2.5-1.5B-Instruct` | `chat_short` | `make reproduce RUN=m2-real REPRO_BACKEND=configs/backends/vllm_modal_example.yaml REPRO_WORKLOAD=configs/workloads/chat_short.yaml REPRO_RUN_ID=m2-qwen-l40s-modal-chat-short-20260421-r3` | `artifacts/m2-qwen-l40s-modal-chat-short-20260421-r3/report.md` | `artifacts/m2-qwen-l40s-modal-chat-short-20260421-r3/metrics.parquet`, `artifacts/m2-qwen-l40s-modal-chat-short-20260421-r3/guidellm/benchmark.json` | Bound to tested hardware / model / workload. The `official_metrics_missing` field in this report predates the 2026-04-21 metric-contract cleanup. |
+No checked-in hero artifacts are present in this checkout right now.
 
-### `m2-qwen-l40s-modal-chat-short-20260421-r3`
+That means:
+- there is no current in-repo M2 report path that a reviewer can open directly
+- there is no current in-repo GuideLLM cross-check output to audit directly
+- README and application-facing wording must stay below Silver until a fresh real run is stored again
 
-Question:
+## Next artifact expected here
+
+The next entry should be created immediately after a fresh bounded M2 run writes both:
+- `artifacts/<run_id>/...`
+- `artifacts/<run_id>/guidellm/...`
+
+Use `docs/18-artifact-index-template.md` once those files exist.
+
+Target question for the next hero artifact:
 - Can the repo produce one real, reproducible, cross-checked M2 baseline on a single-GPU Modal deployment?
 
-Finding:
-- On `Modal L40S x1` with `Qwen/Qwen2.5-1.5B-Instruct` and `chat_short`, the baseline completed `500/500` requests with median client latency `0.664248s`, p95 `1.140493s`, and a GuideLLM cross-check that also closed `500/500` successfully.
-
-Reproduction:
+Target reproduction commands:
 ```bash
-make reproduce RUN=m2-real REPRO_BACKEND=configs/backends/vllm_modal_example.yaml REPRO_WORKLOAD=configs/workloads/chat_short.yaml REPRO_RUN_ID=m2-qwen-l40s-modal-chat-short-20260421-r3
+make reproduce RUN=m2-real REPRO_BACKEND=configs/backends/vllm_modal_example.yaml REPRO_WORKLOAD=configs/workloads/chat_short.yaml REPRO_RUN_ID=<run_id>
 uv run lsp cross-check-guidellm \
   --backend-config configs/backends/vllm_modal_example.yaml \
   --workload-config configs/workloads/chat_short.yaml \
-  --output-dir artifacts/m2-qwen-l40s-modal-chat-short-20260421-r3/guidellm \
+  --output-dir artifacts/<run_id>/guidellm \
   --execute
 ```
 
-Files:
-- `artifacts/m2-qwen-l40s-modal-chat-short-20260421-r3/run.json`
-- `artifacts/m2-qwen-l40s-modal-chat-short-20260421-r3/report.md`
-- `artifacts/m2-qwen-l40s-modal-chat-short-20260421-r3/scorecard.json`
-- `artifacts/m2-qwen-l40s-modal-chat-short-20260421-r3/metrics.parquet`
-- `artifacts/m2-qwen-l40s-modal-chat-short-20260421-r3/guidellm/repo_cross_check_execution.json`
-- `artifacts/m2-qwen-l40s-modal-chat-short-20260421-r3/guidellm/benchmark.json`
-
-Caveats:
-- Hardware-specific: only `Modal L40S x1` was tested.
-- Workload-specific: only `chat_short` was used for this artifact.
-- Model-specific: only `Qwen/Qwen2.5-1.5B-Instruct` was served.
-- Historical note: the report's `official_metrics_missing` field was written before the repo removed stale non-core metric expectations on 2026-04-21.
+Do not restore Silver wording until the resulting artifact directory and cross-check outputs are present and auditable from repo state.

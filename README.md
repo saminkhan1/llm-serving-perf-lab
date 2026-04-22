@@ -3,21 +3,16 @@
 Compact LLM serving performance lab focused on reproducibility, artifact quality, and hiring-signal-first systems work.
 
 > [!WARNING]
-> Status as of 2026-04-21: Silver / interview-supporting. The repo now has one real M2 baseline artifact and one completed GuideLLM cross-check for `Qwen/Qwen2.5-1.5B-Instruct` on `Modal L40S x1` with `chat_short`.
-> Claims are safe only for that tested hardware / model / workload tuple. This is not yet a Gold-level portfolio centerpiece: PD, regression, profiling, routing, public writeup, and upstream artifacts are still missing.
+> Status as of 2026-04-22: Bronze / repo-in-progress. The repo has M2-capable wiring for a real vLLM baseline, official `/metrics` ingestion, runtime metadata capture, external HTTPS `base_url` targets, and a GuideLLM cross-check path, but this checkout does not currently include a checked-in real M2 artifact pack or completed GuideLLM cross-check output.
+> Public claims must stay bounded to repo capabilities and synthetic verification until a fresh real run plus saved artifacts are restored.
 
-Current status: M2 is complete for one bounded setup and the next required stop is M3 packaging quality.
-The repo now contains a real-mode vLLM adapter path, current-core official `/metrics` ingestion, runtime metadata capture, support for external HTTPS `base_url` targets, a repo-owned Modal vLLM launch template, an external GuideLLM cross-check path, and real parquet artifact writing.
-The current hero artifact lives at `artifacts/m2-qwen-l40s-modal-chat-short-20260421-r3`; the paired cross-check lives at `artifacts/m2-qwen-l40s-modal-chat-short-20260421-r3/guidellm`.
+Current status: M1 is complete, and the repo-side M2 scaffolding is ready for a fresh bounded real run.
+The next required work order is to re-establish one reproducible M2 artifact pack plus one completed official-tool cross-check, then update the packaging docs from that evidence.
 
-## Highlighted finding
+## Highlighted state
 
-- **M2 baseline:** On `Modal L40S x1` serving `Qwen/Qwen2.5-1.5B-Instruct` with `chat_short`, the repo baseline completed `500/500` requests with median client latency `0.664248s`, p95 `1.140493s`, and a GuideLLM cross-check that also closed `500/500` successfully. See `docs/18-artifact-index.md` and `artifacts/m2-qwen-l40s-modal-chat-short-20260421-r3/report.md`.
-
-Important note:
-- the `official_metrics_missing` line inside the April 21, 2026 `r3` report predates the repo's 2026-04-21 metric-contract cleanup
-- current repo code no longer treats those stale names as required official vLLM metrics
-- the measured latency and request-completion results from that artifact remain valid
+- **Repo capability today:** the codebase can render a vLLM launch plan, validate an external HTTPS backend config, probe a target for `/health`, `/version`, and `/metrics`, execute a real-mode benchmark path, and produce a GuideLLM cross-check plan.
+- **What is still missing in this checkout:** one stored real artifact directory and one stored completed cross-check directory that a reviewer can inspect directly from repo state.
 
 ## Why this repo exists
 
@@ -42,7 +37,6 @@ Current implemented scope:
 - repo-owned vLLM launch-plan rendering from `configs/backends/vllm_dev.yaml`
 - endpoint probe for health, runtime metadata, and official metrics exposure
 - external GuideLLM cross-check scaffolding plus plan/log capture for M2 verification
-- one real Modal-backed M2 artifact pack and matching GuideLLM cross-check under `artifacts/`
 - unit and smoke tests
 - example configs for future milestones
 
@@ -55,7 +49,7 @@ To keep claims honest, this repo does not yet provide:
 - routing studies
 - public writeups
 - upstream contributions
-- broad performance claims beyond the tested M2 tuple
+- checked-in measured performance claims from a current real M2 artifact
 
 ## Quickstart
 
@@ -73,11 +67,16 @@ Verify the current repo state:
 
 ```bash
 make verify-m2
+make smoke
+make reproduce RUN=m1 REPRO_RUN_ID=demo-m1
+```
+
+Prepare for an external Modal-backed M2 run after filling the placeholder config:
+
+```bash
 make verify-m2 BACKEND_CONFIG=configs/backends/vllm_modal_example.yaml
 make check-m2-readiness BACKEND_CONFIG=configs/backends/vllm_modal_example.yaml
 make probe-m2 BACKEND_CONFIG=configs/backends/vllm_modal_example.yaml
-make smoke
-make reproduce RUN=m1 REPRO_RUN_ID=demo-m1
 ```
 
 Validate a generated artifact directory:
@@ -98,7 +97,7 @@ make reproduce RUN=m2-real REPRO_BACKEND=configs/backends/vllm_modal_example.yam
 
 `make reproduce RUN=m2-real` is a real-mode path.
 It requires a reachable vLLM endpoint or a host where you can turn the repo launch template into a working local server command.
-The repo now includes one successful external-Modal example under `artifacts/m2-qwen-l40s-modal-chat-short-20260421-r3`, but reproducing it still requires real endpoint and GPU access.
+A real M2 claim only becomes valid once the resulting artifact directory is stored and auditable from repo state.
 
 For a Modal-backed M2 run, fill in `configs/backends/vllm_modal_example.yaml` with the deployed `https://...modal.run` URL from Modal's official vLLM example, then use `REPRO_BACKEND=configs/backends/vllm_modal_example.yaml`.
 Also replace the placeholder `hardware` block before the real run so the artifact names the tested GPU explicitly.
@@ -151,7 +150,8 @@ uv run lsp validate-artifact artifacts/demo-run
 
 ## Modal M2 Path
 
-Use `configs/backends/vllm_modal_example.yaml` for a real external HTTPS target and follow [docs/16-modal-m2-runbook.md](/Users/saminkhan1/Documents/llm-serving-perf-lab/docs/16-modal-m2-runbook.md:1).
+Use `configs/backends/vllm_modal_example.yaml` as the starting point for a real external HTTPS target and follow `docs/16-modal-m2-runbook.md`.
+Fill in the placeholder endpoint and hardware fields first.
 The shortest repo-owned path is:
 
 ```bash
@@ -166,7 +166,7 @@ uv run lsp cross-check-guidellm \
   --execute
 ```
 
-The current completed example is indexed in `docs/18-artifact-index.md`.
+After a fresh real run and completed cross-check exist in `artifacts/<run_id>/`, record them in `docs/18-artifact-index.md`.
 
 ## Artifact contract
 
@@ -187,7 +187,7 @@ When the external GuideLLM cross-check is executed into `artifacts/<run_id>/guid
 - `repo_cross_check_stdout.log`
 - `repo_cross_check_stderr.log`
 
-The repo now writes real parquet files for request, response, and metrics tables.
+The repo writes real parquet files for request, response, and metrics tables.
 Nested fields such as maps/lists are serialized into JSON strings inside parquet cells to keep the artifact writer deterministic and lightweight.
 
 ## Development checks
@@ -211,16 +211,16 @@ make verify-m2
 ## Roadmap
 
 Planned execution order lives in `docs/03-milestones.md`.
-M2 execution is complete for one bounded setup.
-The next required stop is M3 packaging quality, then M4 PD work.
+M1 execution is complete.
+The next required stop is a fresh bounded M2 real run plus stored cross-check artifacts; only then should the repo advance to M3 packaging quality.
 
 ## Public-sharing guidance
 
 If you post progress publicly right now, keep the framing honest:
-- this is an open-source inference-performance lab with one bounded real M2 baseline
-- the safe claim today is a real vLLM baseline plus external cross-check for `Qwen/Qwen2.5-1.5B-Instruct` on `Modal L40S x1` with `chat_short`
-- official metrics ingestion now follows the current documented core vLLM production metrics
-- do not generalize beyond that tested tuple
+- this is an open-source inference-performance lab with real-mode M2 scaffolding but no current checked-in real benchmark artifact
+- the safe claim today is that the repo can drive a bounded real vLLM run once a live endpoint and local GuideLLM are available
+- official metrics ingestion follows the current documented core vLLM production metrics
+- do not claim measured latency or throughput from this checkout until a fresh artifact pack is stored
 - do not claim PD, routing, regression, or profiler depth yet
 
 ## License

@@ -1,6 +1,6 @@
 # Application Packaging
 
-Checked: 2026-04-21
+Checked: 2026-04-22
 
 This document turns the project into something usable in applications.
 
@@ -62,14 +62,14 @@ You have:
 
 This is the strongest version of the project.
 
-## Current public framing at Silver
+## Current public framing at Bronze
 
 Use wording like:
 
-> Interview-supporting. The repo has one real vLLM baseline and one GuideLLM cross-check for `Qwen/Qwen2.5-1.5B-Instruct` on `Modal L40S x1` with `chat_short`. Claims are bounded to that exact setup. Gold-level artifacts such as PD, regression gating, profiling, and upstream work are still pending.
+> Repo-in-progress. The codebase has real-mode vLLM benchmark wiring, official metrics ingestion, runtime metadata capture, external HTTPS target support, and a GuideLLM cross-check path, but the current checkout does not include a stored real M2 artifact pack yet. Claims should stay at capability level until a fresh real run and saved cross-check outputs are restored.
 
 Current note:
-- `artifacts/m2-qwen-l40s-modal-chat-short-20260421-r3/report.md` predates the 2026-04-21 metric-contract cleanup, so its `official_metrics_missing` field includes stale names that current repo code no longer treats as required official vLLM metrics
+- `configs/backends/vllm_modal_example.yaml` is a placeholder example and must be filled with a live endpoint plus real hardware metadata before any public M2 claim is safe
 
 If that sentence becomes false, update it immediately.
 

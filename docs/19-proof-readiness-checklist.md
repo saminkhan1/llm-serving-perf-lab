@@ -1,9 +1,8 @@
 # Proof Readiness Checklist
 
-Checked: 2026-04-21
+Checked: 2026-04-22
 
 This document is the public-claim gate.
-
 If the answer is "no" for the current stage, downgrade the wording in:
 - `README.md`
 - `docs/10-application-packaging.md`
@@ -12,16 +11,13 @@ If the answer is "no" for the current stage, downgrade the wording in:
 
 ## Current default state
 
-The repo is currently at Silver:
-- one real M2 artifact pack exists at `artifacts/m2-qwen-l40s-modal-chat-short-20260421-r3`
-- one completed GuideLLM cross-check exists at `artifacts/m2-qwen-l40s-modal-chat-short-20260421-r3/guidellm`
-- one README measured-finding section now exists
-- one artifact-index entry now exists in `docs/18-artifact-index.md`
-- safe claims are bounded to `Modal L40S x1`, `Qwen/Qwen2.5-1.5B-Instruct`, and `chat_short`
-- the repo is interview-supporting, but not yet safe to lead with as a portfolio centerpiece
-
-Historical note:
-- the `official_metrics_missing` field in the April 21, 2026 `r3` report predates the same-day metric-contract cleanup and should not be interpreted as missing required current-core vLLM metrics
+The repo is currently at Bronze:
+- M1 synthetic proof exists and controller-side validation passes
+- repo-side M2 scaffolding exists for a real vLLM run, official `/metrics` ingestion, runtime metadata capture, and a GuideLLM cross-check path
+- `configs/backends/vllm_modal_example.yaml` is now explicitly a placeholder example that must be filled before a real run
+- no checked-in real M2 artifact pack is present in `artifacts/`
+- no checked-in completed GuideLLM cross-check output is present in `artifacts/`
+- safe claims are limited to repo capabilities, not measured serving results
 
 ## Stage gates
 
@@ -46,10 +42,10 @@ Not safe:
 ### Silver — interview-supporting
 
 Required:
-- one real vLLM artifact pack
-- one official-tool or GuideLLM cross-check
-- one README measured-findings section
-- one artifact-index entry
+- one real vLLM artifact pack checked into or otherwise directly accessible from repo state
+- one official-tool or GuideLLM cross-check saved next to that artifact
+- one README measured-findings section grounded in those files
+- one artifact-index entry pointing to those files
 
 Safe wording:
 - real serving baseline exists

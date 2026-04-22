@@ -4,7 +4,7 @@ Checked: 2026-04-21
 
 This document exists to keep the project aligned with what current inference / performance roles actually reward.
 
-Use [docs/17-job-mapping-2026.md](/Users/saminkhan1/Documents/llm-serving-perf-lab/docs/17-job-mapping-2026.md:1) as the dated appendix when updating README copy, artifact summaries, or application-facing language. This page holds the stable thesis; the appendix holds the current public-role evidence map.
+Use `docs/17-job-mapping-2026.md` as the dated appendix when updating README copy, artifact summaries, or application-facing language. This page holds the stable thesis; the appendix holds the current public-role evidence map.
 
 ## Primary target roles
 

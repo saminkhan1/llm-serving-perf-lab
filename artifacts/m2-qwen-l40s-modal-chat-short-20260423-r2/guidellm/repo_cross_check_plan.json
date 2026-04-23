@@ -1,0 +1,70 @@
+{
+  "command": [
+    "guidellm",
+    "benchmark",
+    "run",
+    "--target",
+    "https://saminkhan1--lsp-m2-qwen-vllm-serve.modal.run",
+    "--backend",
+    "openai_http",
+    "--model",
+    "Qwen/Qwen2.5-1.5B-Instruct",
+    "--request-format",
+    "/v1/completions",
+    "--profile",
+    "synchronous",
+    "--max-requests",
+    "500",
+    "--data-num-workers",
+    "0",
+    "--output-dir",
+    "/Users/saminkhan1/Documents/llm-serving-perf-lab/artifacts/m2-qwen-l40s-modal-chat-short-20260423-r2/guidellm",
+    "--outputs",
+    "benchmark.json",
+    "--outputs",
+    "benchmark.csv",
+    "--disable-console-interactive",
+    "--data",
+    "prompt_tokens=198,output_tokens=105"
+  ],
+  "command_shell": "guidellm benchmark run --target https://saminkhan1--lsp-m2-qwen-vllm-serve.modal.run --backend openai_http --model Qwen/Qwen2.5-1.5B-Instruct --request-format /v1/completions --profile synchronous --max-requests 500 --data-num-workers 0 --output-dir /Users/saminkhan1/Documents/llm-serving-perf-lab/artifacts/m2-qwen-l40s-modal-chat-short-20260423-r2/guidellm --outputs benchmark.json --outputs benchmark.csv --disable-console-interactive --data prompt_tokens=198,output_tokens=105",
+  "data": {
+    "avg_output_tokens": 105,
+    "avg_prompt_tokens": 198,
+    "mode": "synthetic_token_summary",
+    "source_seed": 7
+  },
+  "environment": {
+    "GUIDELLM__MAX_WORKER_PROCESSES": "1",
+    "GUIDELLM__MP_CONTEXT_TYPE": "spawn"
+  },
+  "hardware_metadata": {
+    "accelerator": "L40S",
+    "accelerator_count": 1,
+    "notes": [
+      "Deployed from scripts/modal_vllm_m2.py.",
+      "Benchmark intent is a single-container single-GPU M2 baseline."
+    ],
+    "provider": "modal"
+  },
+  "hardware_profile": "L40S x1 via modal",
+  "notes": [
+    "This is external cross-check scaffolding only; it does not fabricate a benchmark result.",
+    "The generated GuideLLM command uses synthetic token sizes derived from the repo workload config, not a byte-for-byte replay of the repo request trace.",
+    "GuideLLM 0.6.x expects `guidellm benchmark run` with an explicit `--backend openai_http`, `--model`, and `--request-format /v1/completions` for this cross-check shape.",
+    "The plan writes explicit `benchmark.json` and `benchmark.csv` outputs because GuideLLM 0.6.0 does not reliably resolve bare `json`/`csv` aliases when `--output-dir` is used.",
+    "Execution exports `GUIDELLM__MP_CONTEXT_TYPE=spawn` and `GUIDELLM__MAX_WORKER_PROCESSES=1` to avoid a local multiprocessing shutdown hang observed with the installed GuideLLM 0.6.0 CLI on macOS.",
+    "Execution treats a zero exit code as insufficient proof by itself; the saved GuideLLM artifact must also close all expected requests cleanly."
+  ],
+  "output_dir": "/Users/saminkhan1/Documents/llm-serving-perf-lab/artifacts/m2-qwen-l40s-modal-chat-short-20260423-r2/guidellm",
+  "output_files": [
+    "benchmark.json",
+    "benchmark.csv"
+  ],
+  "request_count": 500,
+  "target": "https://saminkhan1--lsp-m2-qwen-vllm-serve.modal.run",
+  "timeout_seconds": 600,
+  "tool": "guidellm",
+  "tool_available": true,
+  "workload_id": "chat_short"
+}

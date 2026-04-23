@@ -1,0 +1,50 @@
+{
+  "backend": "vllm",
+  "backend_version": "0.19.0",
+  "end_time_utc": "2026-04-22T02:07:03.442381+00:00",
+  "failure_reason": null,
+  "git_commit": "af3817f1b5b00099bda9fdc8acf80975f45bf980",
+  "git_dirty": true,
+  "hardware_metadata": {
+    "accelerator": "L40S",
+    "accelerator_count": 1,
+    "notes": [
+      "Deployed from scripts/modal_vllm_m2.py for the first real M2 baseline.",
+      "Bound to one Modal-hosted L40S replica serving Qwen/Qwen2.5-1.5B-Instruct.",
+      "Benchmark validity assumes the Modal app stays pinned to a single replica during the run."
+    ],
+    "provider": "modal"
+  },
+  "hardware_profile": "L40S x1 via modal",
+  "mode": "serve",
+  "model_id": "Qwen/Qwen2.5-1.5B-Instruct",
+  "notes": [],
+  "policy_id": "none",
+  "repro_command": "python3 -m lsp.cli.main run --backend-config configs/backends/vllm_modal_example.yaml --workload-config configs/workloads/chat_short.yaml --output-dir artifacts --run-id m2-qwen-l40s-modal-chat-short-20260421-r3",
+  "run_id": "m2-qwen-l40s-modal-chat-short-20260421-r3",
+  "runtime_metadata": {
+    "backend_version": "0.19.0",
+    "base_url": "https://saminkhan1--lsp-m2-qwen-vllm-serve.modal.run",
+    "launch": {
+      "command": null,
+      "configured_launch": {
+        "attach_mode": "external",
+        "healthcheck_interval_seconds": 1.0,
+        "request_timeout_seconds": 60,
+        "startup_timeout_seconds": 120
+      },
+      "cwd": null
+    },
+    "scrape_endpoint": "https://saminkhan1--lsp-m2-qwen-vllm-serve.modal.run/metrics",
+    "version_endpoint_status": 200,
+    "version_payload": {
+      "version": "0.19.0"
+    }
+  },
+  "schema_version": "artifact.v2",
+  "seed": 7,
+  "start_time_utc": "2026-04-22T02:01:01.024564+00:00",
+  "status": "success",
+  "synthetic": false,
+  "workload_id": "chat_short"
+}

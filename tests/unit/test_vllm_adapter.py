@@ -130,7 +130,7 @@ class VLLMAdapterLifecycleTests(unittest.TestCase):
             temp_root=temp_root,
             port=None,
             command=None,
-            base_url="https://example.modal.run/vllm",
+            base_url="https://example.modal.run",
         )
 
         config_document = load_config(config_path)
@@ -138,10 +138,10 @@ class VLLMAdapterLifecycleTests(unittest.TestCase):
         config = cast(BackendConfig, config_document)
         adapter = build_vllm_adapter(config)
 
-        self.assertEqual(adapter.base_url, "https://example.modal.run/vllm")
-        self.assertEqual(adapter.health_url, "https://example.modal.run/vllm/health")
-        self.assertEqual(adapter.version_url, "https://example.modal.run/vllm/version")
-        self.assertEqual(adapter.completions_url, "https://example.modal.run/vllm/v1/completions")
+        self.assertEqual(adapter.base_url, "https://example.modal.run")
+        self.assertEqual(adapter.health_url, "https://example.modal.run/health")
+        self.assertEqual(adapter.version_url, "https://example.modal.run/version")
+        self.assertEqual(adapter.completions_url, "https://example.modal.run/v1/completions")
 
 
 if __name__ == "__main__":

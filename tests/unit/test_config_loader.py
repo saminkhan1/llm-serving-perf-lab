@@ -44,6 +44,18 @@ class ConfigLoaderTests(unittest.TestCase):
         with self.assertRaisesRegex(ValidationError, "accelerator_count must be > 0"):
             load_config(config_path)
 
+    def test_base_url_with_path_fails_validation(self) -> None:
+        config_path = REPO_ROOT / "tests" / "fixtures" / "invalid_backend_base_url_with_path.yaml"
+        with self.assertRaisesRegex(ValidationError, "must be the endpoint root"):
+            load_config(config_path)
+
+    def test_metrics_endpoint_mismatch_fails_validation(self) -> None:
+        config_path = (
+            REPO_ROOT / "tests" / "fixtures" / "invalid_backend_metrics_endpoint_mismatch.yaml"
+        )
+        with self.assertRaisesRegex(ValidationError, "must equal base_url \\+ '/metrics'"):
+            load_config(config_path)
+
     def test_invalid_enum_fails_validation(self) -> None:
         config_path = REPO_ROOT / "tests" / "fixtures" / "invalid_threshold_bad_enum.yaml"
         with self.assertRaisesRegex(ValidationError, "comparison_mode must be one of"):

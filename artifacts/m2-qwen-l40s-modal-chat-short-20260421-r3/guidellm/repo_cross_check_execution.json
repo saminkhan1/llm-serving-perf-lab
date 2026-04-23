@@ -1,0 +1,32 @@
+{
+  "artifact_validation": {
+    "expected_request_count": 500,
+    "status": "passed",
+    "summary": {
+      "benchmark_count": 1,
+      "cancelled_requests": 0,
+      "created_requests": 500,
+      "errored_entry_count": 0,
+      "errored_requests": 0,
+      "incomplete_entry_count": 0,
+      "processed_requests": 500,
+      "successful_entry_count": 500,
+      "successful_requests": 500
+    },
+    "validated_output_files": [
+      "benchmark.json",
+      "benchmark.csv"
+    ]
+  },
+  "failure_reason": null,
+  "finished_at_utc": "2026-04-22T02:13:51.276415+00:00",
+  "output_dir": "/Users/saminkhan1/Documents/llm-serving-perf-lab/artifacts/m2-qwen-l40s-modal-chat-short-20260421-r3/guidellm",
+  "returncode": 0,
+  "started_at_utc": "2026-04-22T02:07:49.151719+00:00",
+  "status": "completed",
+  "stderr_log": "repo_cross_check_stderr.log",
+  "stdout_log": "repo_cross_check_stdout.log",
+  "timeout_seconds": 600,
+  "tool": "guidellm",
+  "tool_returncode": 0
+}

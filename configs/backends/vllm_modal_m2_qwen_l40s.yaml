@@ -1,0 +1,25 @@
+backend: vllm
+mode: serve
+model_id: Qwen/Qwen2.5-1.5B-Instruct
+base_url: https://saminkhan1--lsp-m2-qwen-vllm-serve.modal.run
+hardware:
+  provider: modal
+  accelerator: L40S
+  accelerator_count: 1
+  notes:
+    - Deployed from scripts/modal_vllm_m2.py.
+    - Benchmark intent is a single-container single-GPU M2 baseline.
+
+launch:
+  attach_mode: external
+  startup_timeout_seconds: 120
+  healthcheck_interval_seconds: 1.0
+  request_timeout_seconds: 60
+
+metrics:
+  scrape_endpoint: https://saminkhan1--lsp-m2-qwen-vllm-serve.modal.run/metrics
+  scrape_interval_seconds: 2
+
+artifacts:
+  capture_runtime_metadata: true
+  write_plots: true

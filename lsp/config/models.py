@@ -74,6 +74,33 @@ def _ensure_http_url(
     return text
 
 
+def _ensure_vllm_external_endpoint_layout(payload: dict[str, Any]) -> None:
+    metrics = payload["metrics"]
+    metrics_endpoint = str(metrics["scrape_endpoint"])
+
+    if "base_url" in payload:
+        base_url = str(payload["base_url"])
+        parsed_base = urlsplit(base_url)
+        if parsed_base.path not in {"", "/"}:
+            raise ValidationError(
+                "vllm backend config.base_url must be the endpoint root without a path such as "
+                "/v1"
+            )
+        expected_metrics = f"{base_url.rstrip('/')}/metrics"
+        if metrics_endpoint != expected_metrics:
+            raise ValidationError(
+                "vllm backend config.metrics.scrape_endpoint must equal base_url + '/metrics'"
+            )
+        return
+
+    expected_metrics = f"http://{payload['host']}:{payload['port']}/metrics"
+    if metrics_endpoint != expected_metrics:
+        raise ValidationError(
+            "vllm backend config.metrics.scrape_endpoint must equal "
+            "http://<host>:<port>/metrics for host/port configs"
+        )
+
+
 def _ensure_string_list(value: Any, context: str) -> list[str]:
     _ensure_type(value, list, context)
     if not all(isinstance(item, str) and item.strip() for item in value):
@@ -210,6 +237,7 @@ class BackendConfig(ConfigDocument):
                     metrics["scrape_interval_seconds"],
                     "vllm backend config.metrics.scrape_interval_seconds",
                 )
+            _ensure_vllm_external_endpoint_layout(payload)
         elif backend == "sglang":
             _require_keys(
                 payload,

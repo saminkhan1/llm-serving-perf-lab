@@ -1,6 +1,6 @@
 # Reference Links
 
-Checked: 2026-04-21
+Checked: 2026-04-22
 
 These links were used to keep the project aligned with current role expectations and serving-stack documentation.
 
@@ -81,5 +81,19 @@ These links were used to keep the project aligned with current role expectations
   https://modal.com/pricing
 - GPU acceleration
   https://modal.com/docs/guide/gpu
+- Web endpoints
+  https://modal.com/docs/guide/webhooks
+- `modal.web_server` reference
+  https://modal.com/docs/reference/modal.web_server
+- Input concurrency
+  https://modal.com/docs/guide/concurrent-inputs
+- Scaling out
+  https://modal.com/docs/guide/scale
 - Run OpenAI-compatible LLM inference with vLLM
-  https://modal.com/docs/examples/llm_inference
+  https://modal.com/docs/examples/vllm_inference
+
+### GuideLLM
+- README / CLI examples
+  https://github.com/vllm-project/guidellm
+- Release notes
+  https://github.com/vllm-project/guidellm/releases

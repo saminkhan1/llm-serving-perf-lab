@@ -20,6 +20,7 @@ Must fail on:
 - invalid enums
 - impossible thresholds
 - impossible budgets
+- invalid external endpoint layout such as `base_url` set to `/v1` or a metrics URL that does not match the target server's `/metrics` endpoint
 
 ## Gate 2 — artifact validity
 
@@ -149,5 +150,6 @@ make reproduce RUN=m2-real REPRO_BACKEND=configs/backends/vllm_modal_example.yam
 ```
 
 That command is only a reproducible repo entrypoint, not a guarantee that the local machine has the required vLLM, GPU, or external cross-check dependencies.
+It now performs a readiness precheck first so obvious placeholder or malformed external endpoint configs fail before workload traffic starts.
 
 If a result cannot be reproduced from repo state and stored artifacts, it does not count.

@@ -1,0 +1,19 @@
+backend: vllm
+mode: serve
+model_id: Qwen/Qwen2.5-1.5B-Instruct
+base_url: https://example.modal.run/v1
+hardware:
+  provider: modal
+  accelerator: NVIDIA L40S
+  accelerator_count: 1
+launch:
+  attach_mode: external
+  startup_timeout_seconds: 60
+  healthcheck_interval_seconds: 1.0
+  request_timeout_seconds: 60
+metrics:
+  scrape_endpoint: https://example.modal.run/v1/metrics
+  scrape_interval_seconds: 2
+artifacts:
+  capture_runtime_metadata: true
+  write_plots: true

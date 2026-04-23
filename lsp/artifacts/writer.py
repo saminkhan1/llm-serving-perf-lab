@@ -43,7 +43,9 @@ def write_artifact_bundle(
     report_lines: list[str],
 ) -> ArtifactBundle:
     run_dir.mkdir(parents=True, exist_ok=False)
-    (run_dir / "plots").mkdir()
+    plots_dir = run_dir / "plots"
+    plots_dir.mkdir()
+    (plots_dir / ".gitkeep").write_text("", encoding="utf-8")
 
     write_json(run_dir / "run.json", metadata.to_dict())
     write_json(run_dir / "backend_config_resolved.json", backend_config)

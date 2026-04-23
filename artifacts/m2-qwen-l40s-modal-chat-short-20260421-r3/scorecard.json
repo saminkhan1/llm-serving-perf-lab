@@ -1,0 +1,15 @@
+{
+  "metric_rows": 925,
+  "official_metrics_missing": [
+    "generation_throughput_tokens_per_second",
+    "gpu_memory_usage_bytes",
+    "prompt_throughput_tokens_per_second",
+    "request_error_total",
+    "request_timeout_total"
+  ],
+  "request_count": 500,
+  "response_count": 500,
+  "schema_version": "artifact.v2",
+  "status": "success",
+  "summary": "Real-mode benchmark completed successfully."
+}

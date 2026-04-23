@@ -1,0 +1,29 @@
+{
+  "artifacts": {
+    "capture_runtime_metadata": true,
+    "write_plots": true
+  },
+  "backend": "vllm",
+  "base_url": "https://saminkhan1--lsp-m2-qwen-vllm-serve.modal.run",
+  "hardware": {
+    "accelerator": "L40S",
+    "accelerator_count": 1,
+    "notes": [
+      "Deployed from scripts/modal_vllm_m2.py.",
+      "Benchmark intent is a single-container single-GPU M2 baseline."
+    ],
+    "provider": "modal"
+  },
+  "launch": {
+    "attach_mode": "external",
+    "healthcheck_interval_seconds": 1.0,
+    "request_timeout_seconds": 60,
+    "startup_timeout_seconds": 120
+  },
+  "metrics": {
+    "scrape_endpoint": "https://saminkhan1--lsp-m2-qwen-vllm-serve.modal.run/metrics",
+    "scrape_interval_seconds": 2
+  },
+  "mode": "serve",
+  "model_id": "Qwen/Qwen2.5-1.5B-Instruct"
+}

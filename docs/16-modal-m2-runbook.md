@@ -20,8 +20,10 @@ You need:
 
 Official references:
 - Modal vLLM example: https://modal.com/docs/examples/vllm_inference
-- Modal web endpoints: https://frontend.modal.com/docs/guide/webhooks
-- Modal autoscaling: https://frontend.modal.com/docs/guide/scale
+- Modal web endpoints: https://modal.com/docs/guide/webhooks
+- Modal `web_server` reference: https://modal.com/docs/reference/modal.web_server
+- Modal input concurrency: https://modal.com/docs/guide/concurrent-inputs
+- Modal autoscaling: https://modal.com/docs/guide/scale
 - Modal GPU guide: https://modal.com/docs/guide/gpu
 - vLLM production metrics: https://docs.vllm.ai/en/latest/usage/metrics/
 - vLLM metrics design / deprecations: https://docs.vllm.ai/en/stable/design/metrics/
@@ -36,6 +38,7 @@ Use this default unless a concrete blocker appears:
 
 Why this default:
 - it is a narrow single-GPU path that is good enough for one trustworthy baseline
+- it follows the current official Modal deployment pattern while keeping the first proof cheaper than the heavier example model/GPU combinations shown in current docs
 - it keeps the repo default aligned with the first real M2 proof target instead of relying on a separate override
 - it keeps the first proof focused on endpoint health, metrics exposure, and artifact quality
 - it keeps the hardware claim honest by pinning the Modal app to a single replica during the benchmark
@@ -54,6 +57,7 @@ Replace:
 
 Notes:
 - `base_url` must be the endpoint root, not `/v1`
+- `metrics.scrape_endpoint` must be exactly `<base_url>/metrics`
 - the repo derives `/health`, `/version`, and `/v1/completions` from `base_url`
 - the simplest M2 path is an endpoint without extra proxy auth headers
 - for the default first run, set `model_id` to `Qwen/Qwen2.5-1.5B-Instruct` and `hardware.accelerator` to `L40S`
@@ -83,6 +87,8 @@ make check-m2-readiness BACKEND_CONFIG=configs/backends/vllm_modal_example.yaml
 
 That check is expected to block until:
 - `base_url` and `metrics.scrape_endpoint` are no longer example values
+- `base_url` is the endpoint root and not a path like `/v1`
+- `metrics.scrape_endpoint` matches the same endpoint root plus `/metrics`
 - `hardware.accelerator` is no longer a placeholder
 - `guidellm` is installed in `PATH`
 - Modal CLI is installed and has a current profile when `hardware.provider` is `modal`
@@ -101,6 +107,9 @@ What this proves:
 - the repo forces a safer local GuideLLM multiprocessing profile
 - the repo can complete and clean up the external cross-check path against a fake local backend
 - the repo rejects a zero-exit GuideLLM run if the saved artifact is incomplete
+
+This step is intentionally zero-GPU.
+Its only job is to catch CLI/orchestration failures before you wake a paid endpoint.
 
 If this step fails, stop there and fix the local orchestration problem first.
 
@@ -128,6 +137,7 @@ make reproduce \
 ```
 
 That command should write an artifact directory under `artifacts/<run_id>`.
+The stable `make reproduce` entrypoint now runs the repo readiness precheck first and refuses placeholder or mis-shaped external endpoint configs before it submits the workload.
 
 ## 7. Produce the official-tool cross-check
 

@@ -1,6 +1,6 @@
 # Application Packaging
 
-Checked: 2026-04-22
+Checked: 2026-04-23
 
 This document turns the project into something usable in applications.
 
@@ -62,14 +62,15 @@ You have:
 
 This is the strongest version of the project.
 
-## Current public framing at Bronze
+## Current public framing at Silver
 
 Use wording like:
 
-> Repo-in-progress. The codebase has real-mode vLLM benchmark wiring, official metrics ingestion, runtime metadata capture, external HTTPS target support, and a GuideLLM cross-check path, but the current checkout does not include a stored real M2 artifact pack yet. Claims should stay at capability level until a fresh real run and saved cross-check outputs are restored.
+> Artifact-backed Silver state. The checkout includes a stored real M2 vLLM baseline at `artifacts/m2-qwen-l40s-modal-chat-short-20260423-r2/` plus a completed GuideLLM cross-check in the sibling `guidellm/` directory. Safe public claims are limited to one Modal-hosted `L40S x1`, `Qwen/Qwen2.5-1.5B-Instruct`, and `chat_short` workload; the artifact records `git_dirty: true`; GuideLLM uses a synthetic token summary rather than exact trace replay; and Modal cold-start probe timeouts require a later clean passing probe before evidence is produced.
 
 Current note:
 - `configs/backends/vllm_modal_example.yaml` is a placeholder example and must be filled with a live endpoint plus real hardware metadata before any public M2 claim is safe
+- `configs/backends/vllm_modal_m2_qwen_l40s.yaml` is the current concrete repo config for reproducing the stored Modal baseline
 
 If that sentence becomes false, update it immediately.
 

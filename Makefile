@@ -36,6 +36,9 @@ reproduce:
 		m2-real) \
 			backend="$(or $(REPRO_BACKEND),$(BACKEND_CONFIG))"; \
 			workload="$(or $(REPRO_WORKLOAD),configs/workloads/chat_short.yaml)"; \
+			echo "Running readiness precheck before the paid real-mode path:"; \
+			echo "$(CLI) check-m2-readiness --backend-config $$backend"; \
+			$(CLI) check-m2-readiness --backend-config $$backend || exit $$?; \
 			echo "M2 real-mode reproduction requires a reachable vLLM server or a local environment where the launch template can be turned into a real command."; \
 			echo "Inspect the repo-owned launch plan with: $(CLI) render-vllm-launch --backend-config $$backend"; \
 			echo "Inspect the external GuideLLM cross-check plan with: $(CLI) cross-check-guidellm --backend-config $$backend --workload-config $$workload"; \

@@ -1,12 +1,12 @@
 # llm-serving-perf-lab
 
-Compact LLM serving performance lab focused on reproducibility, artifact quality, and hiring-signal-first systems work.
+Compact LLM serving performance lab focused on reproducible benchmarks, official serving metrics, and auditable artifact packs.
 
 > [!WARNING]
-> Status as of 2026-04-23: Silver / M3 checkpoint complete. This checkout contains a fresh real vLLM artifact pack at `artifacts/m2-qwen-l40s-modal-chat-short-20260423-r2/`, a standalone M3 report at `artifacts/m2-qwen-l40s-modal-chat-short-20260423-r2/m3_report.md`, a concise result summary at `artifacts/m2-qwen-l40s-modal-chat-short-20260423-r2/m3_summary.md`, and a completed GuideLLM cross-check at `artifacts/m2-qwen-l40s-modal-chat-short-20260423-r2/guidellm/`.
+> Status as of 2026-04-23: M3 reporting checkpoint complete. This checkout contains a fresh real vLLM artifact pack at `artifacts/m2-qwen-l40s-modal-chat-short-20260423-r2/`, a standalone M3 report at `artifacts/m2-qwen-l40s-modal-chat-short-20260423-r2/m3_report.md`, a concise result summary at `artifacts/m2-qwen-l40s-modal-chat-short-20260423-r2/m3_summary.md`, and a completed GuideLLM cross-check at `artifacts/m2-qwen-l40s-modal-chat-short-20260423-r2/guidellm/`.
 > Public claims must stay bounded to one Modal-hosted `L40S x1`, `Qwen/Qwen2.5-1.5B-Instruct`, and `chat_short` workload. The artifact records `git_dirty: true`, and the GuideLLM cross-check uses a synthetic token summary rather than exact trace replay.
 
-Current status: M3 Portfolio Checkpoint A is complete with a stored real baseline, standalone report, concise summary, and saved official-tool cross-check.
+Current status: M3 reporting checkpoint is complete with a stored real baseline, standalone report, concise summary, and saved official-tool cross-check.
 The next required work order is M4 SGLang + PD baseline.
 
 ## Highlighted state
@@ -63,7 +63,7 @@ To keep claims honest, this repo does not yet provide:
 - routing studies
 - public writeups
 - upstream contributions
-- a clean-checkout rerun of the current M2 hero artifact for stronger public packaging
+- a clean-checkout rerun of the current M2 hero artifact for stronger artifact claims
 
 ## Quickstart
 
@@ -166,7 +166,7 @@ uv run lsp validate-artifact artifacts/demo-run
 
 ## Modal M2 Path
 
-Use `configs/backends/vllm_modal_example.yaml` as the starting point for a real external HTTPS target and follow `docs/16-modal-m2-runbook.md`.
+Use `configs/backends/vllm_modal_example.yaml` as the starting point for a real external HTTPS target.
 Fill in the placeholder endpoint and hardware fields first.
 The shortest repo-owned path is:
 
@@ -182,7 +182,7 @@ uv run lsp cross-check-guidellm \
   --execute
 ```
 
-After a fresh real run and completed cross-check exist in `artifacts/<run_id>/`, record them in `docs/18-artifact-index.md`.
+After a fresh real run and completed cross-check exist in `artifacts/<run_id>/`, keep the run id, command invocation, backend config, workload config, and caveats with the artifact.
 
 ## Artifact contract
 
@@ -218,7 +218,6 @@ make verify-m2
 
 ## Repository layout
 
-- `docs/` — project contract, milestones, acceptance gates, and public-writeup guidance
 - `configs/` — validated example configs
 - `lsp/` — package source for config loading, artifact writing, and CLI behavior
 - `tests/` — unit and smoke coverage
@@ -226,10 +225,9 @@ make verify-m2
 
 ## Roadmap
 
-Planned execution order lives in `docs/03-milestones.md`.
 M1 execution is complete.
 M2 has a fresh artifact-backed baseline.
-M3 Portfolio Checkpoint A is complete.
+M3 reporting checkpoint is complete.
 The next required stop is M4 SGLang + PD baseline.
 
 ## Public-sharing guidance

@@ -98,7 +98,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     m3_report_parser = subparsers.add_parser(
         "build-m3-report",
-        help="Build the M3 portfolio report and concise summary from a stored artifact.",
+        help="Build the M3 reporting checkpoint and concise summary from a stored artifact.",
     )
     m3_report_parser.add_argument("--run-dir", type=Path, required=True)
     m3_report_parser.add_argument("--report-path", type=Path, default=None)

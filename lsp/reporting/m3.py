@@ -36,7 +36,7 @@ class GuideLLMSummary:
 
 
 @dataclass(frozen=True)
-class PortfolioCheckpoint:
+class ReportingCheckpoint:
     run_dir: Path
     metadata: RunMetadata
     backend_config_path: str | None
@@ -302,7 +302,7 @@ def _build_caveats(
     return caveats
 
 
-def build_m3_portfolio_checkpoint(run_dir: Path) -> PortfolioCheckpoint:
+def build_m3_reporting_checkpoint(run_dir: Path) -> ReportingCheckpoint:
     bundle = validate_artifact_dir(run_dir)
     scorecard = _load_json(run_dir / "scorecard.json")
     request_count = scorecard.get("request_count")
@@ -324,7 +324,7 @@ def build_m3_portfolio_checkpoint(run_dir: Path) -> PortfolioCheckpoint:
     backend_config_path, workload_config_path, output_dir = _derive_repo_paths(metadata)
     guide_summary = _extract_guidellm_summary(run_dir / "guidellm")
 
-    return PortfolioCheckpoint(
+    return ReportingCheckpoint(
         run_dir=run_dir,
         metadata=metadata,
         backend_config_path=backend_config_path,
@@ -364,10 +364,10 @@ def _fmt_rps(value: float) -> str:
     return f"{value:.2f}"
 
 
-def render_m3_portfolio_report(checkpoint: PortfolioCheckpoint) -> str:
+def render_m3_reporting_report(checkpoint: ReportingCheckpoint) -> str:
     metadata = checkpoint.metadata
     lines = [
-        "# M3 Portfolio Checkpoint A",
+        "# M3 Reporting Checkpoint",
         "",
         (
             "This report packages the first stored real benchmark into a reviewer-friendly "
@@ -492,7 +492,7 @@ def render_m3_portfolio_report(checkpoint: PortfolioCheckpoint) -> str:
     return "\n".join(lines)
 
 
-def render_m3_result_summary(checkpoint: PortfolioCheckpoint) -> str:
+def render_m3_result_summary(checkpoint: ReportingCheckpoint) -> str:
     metadata = checkpoint.metadata
     caveat_summary = "; ".join(caveat.rstrip(".") for caveat in checkpoint.caveats)
     lines = [
@@ -539,11 +539,11 @@ def write_m3_report_outputs(
     report_path: Path | None = None,
     summary_path: Path | None = None,
 ) -> dict[str, str]:
-    checkpoint = build_m3_portfolio_checkpoint(run_dir)
+    checkpoint = build_m3_reporting_checkpoint(run_dir)
     resolved_report_path = report_path or run_dir / "m3_report.md"
     resolved_summary_path = summary_path or run_dir / "m3_summary.md"
     resolved_report_path.write_text(
-        render_m3_portfolio_report(checkpoint),
+        render_m3_reporting_report(checkpoint),
         encoding="utf-8",
     )
     resolved_summary_path.write_text(

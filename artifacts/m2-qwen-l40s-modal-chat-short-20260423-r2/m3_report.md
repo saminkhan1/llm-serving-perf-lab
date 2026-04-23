@@ -1,4 +1,4 @@
-# M3 Portfolio Checkpoint A
+# M3 Reporting Checkpoint
 
 This report packages the first stored real benchmark into a reviewer-friendly artifact that can be audited from repo state plus saved outputs.
 

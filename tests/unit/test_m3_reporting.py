@@ -8,8 +8,8 @@ import unittest
 from pathlib import Path
 
 from lsp.reporting import (
-    build_m3_portfolio_checkpoint,
-    render_m3_portfolio_report,
+    build_m3_reporting_checkpoint,
+    render_m3_reporting_report,
     render_m3_result_summary,
 )
 
@@ -18,8 +18,8 @@ HERO_RUN_DIR = REPO_ROOT / "artifacts" / "m2-qwen-l40s-modal-chat-short-20260423
 
 
 class M3ReportingTests(unittest.TestCase):
-    def test_build_m3_portfolio_checkpoint_reads_hero_artifact(self) -> None:
-        checkpoint = build_m3_portfolio_checkpoint(HERO_RUN_DIR)
+    def test_build_m3_reporting_checkpoint_reads_hero_artifact(self) -> None:
+        checkpoint = build_m3_reporting_checkpoint(HERO_RUN_DIR)
 
         self.assertEqual(
             checkpoint.question_answered,
@@ -51,12 +51,12 @@ class M3ReportingTests(unittest.TestCase):
         )
 
     def test_rendered_outputs_match_tracked_files(self) -> None:
-        checkpoint = build_m3_portfolio_checkpoint(HERO_RUN_DIR)
+        checkpoint = build_m3_reporting_checkpoint(HERO_RUN_DIR)
 
         expected_report = (HERO_RUN_DIR / "m3_report.md").read_text(encoding="utf-8")
         expected_summary = (HERO_RUN_DIR / "m3_summary.md").read_text(encoding="utf-8")
 
-        self.assertEqual(render_m3_portfolio_report(checkpoint), expected_report)
+        self.assertEqual(render_m3_reporting_report(checkpoint), expected_report)
         self.assertEqual(render_m3_result_summary(checkpoint), expected_summary)
 
     def test_cli_build_m3_report_writes_outputs(self) -> None:
@@ -87,23 +87,16 @@ class M3ReportingTests(unittest.TestCase):
         manifest = json.loads(result.stdout)
         self.assertEqual(manifest["report_path"], str(report_path))
         self.assertEqual(manifest["summary_path"], str(summary_path))
-        self.assertIn("M3 Portfolio Checkpoint A", report_path.read_text(encoding="utf-8"))
+        self.assertIn("M3 Reporting Checkpoint", report_path.read_text(encoding="utf-8"))
         self.assertIn("M3 Result Summary", summary_path.read_text(encoding="utf-8"))
 
-    def test_readme_and_docs_reference_m3_outputs(self) -> None:
+    def test_readme_references_m3_outputs(self) -> None:
         readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
-        artifact_index = (REPO_ROOT / "docs" / "18-artifact-index.md").read_text(encoding="utf-8")
-        proof_readiness = (REPO_ROOT / "docs" / "19-proof-readiness-checklist.md").read_text(
-            encoding="utf-8"
-        )
 
         self.assertIn("m3_report.md", readme)
         self.assertIn("m3_summary.md", readme)
         self.assertIn("REPRO_BACKEND=configs/backends/vllm_modal_m2_qwen_l40s.yaml", readme)
         self.assertIn("The next required work order is M4 SGLang + PD baseline.", readme)
-        self.assertIn("m3_report.md", artifact_index)
-        self.assertIn("m3_summary.md", artifact_index)
-        self.assertIn("M3 packaging outputs present", proof_readiness)
 
 
 if __name__ == "__main__":

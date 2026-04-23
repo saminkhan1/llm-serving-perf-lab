@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "llm-serving-perf-lab"
 version = "0.1.0"
-description = "Hiring-signal-first LLM serving performance lab."
+description = "Reproducible LLM serving performance lab."
 readme = "README.md"
 license = { file = "LICENSE" }
 requires-python = ">=3.12"

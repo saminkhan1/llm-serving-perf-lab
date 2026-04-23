@@ -6,7 +6,7 @@ Use this file to point reviewers at the smallest number of artifacts needed to a
 
 | Artifact ID | Milestone | Status | Question Answered | Hardware | Model | Workload | Repro Command | Primary Report | Raw Data | Caveat |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `m2-qwen-l40s-modal-chat-short-20260423-r2` | M2 | hero | Can the repo produce one real, reproducible, cross-checked vLLM baseline on a single-GPU Modal deployment? | `L40S x1 via modal` | `Qwen/Qwen2.5-1.5B-Instruct` | `chat_short` | `make reproduce RUN=m2-real REPRO_BACKEND=configs/backends/vllm_modal_m2_qwen_l40s.yaml REPRO_WORKLOAD=configs/workloads/chat_short.yaml REPRO_RUN_ID=m2-qwen-l40s-modal-chat-short-20260423-r2` | `artifacts/m2-qwen-l40s-modal-chat-short-20260423-r2/report.md` | `artifacts/m2-qwen-l40s-modal-chat-short-20260423-r2/metrics.parquet`, `artifacts/m2-qwen-l40s-modal-chat-short-20260423-r2/guidellm/benchmark.json` | Bound to one Modal-hosted L40S, one model, one workload; artifact records `git_dirty: true`; GuideLLM uses a synthetic token summary; Modal cold-start probe timeouts require a later clean passing probe. |
+| `m2-qwen-l40s-modal-chat-short-20260423-r2` | M2 | hero | Can the repo produce one real, reproducible, cross-checked vLLM baseline on a single-GPU Modal deployment? | `L40S x1 via modal` | `Qwen/Qwen2.5-1.5B-Instruct` | `chat_short` | `make reproduce RUN=m2-real REPRO_BACKEND=configs/backends/vllm_modal_m2_qwen_l40s.yaml REPRO_WORKLOAD=configs/workloads/chat_short.yaml REPRO_RUN_ID=m2-qwen-l40s-modal-chat-short-20260423-r2` | `artifacts/m2-qwen-l40s-modal-chat-short-20260423-r2/m3_report.md` | `artifacts/m2-qwen-l40s-modal-chat-short-20260423-r2/metrics.parquet`, `artifacts/m2-qwen-l40s-modal-chat-short-20260423-r2/report.md`, `artifacts/m2-qwen-l40s-modal-chat-short-20260423-r2/guidellm/benchmark.json` | Bound to one Modal-hosted L40S, one model, one workload; artifact records `git_dirty: true`; GuideLLM uses a synthetic token summary; Modal cold-start probe timeouts require a later clean passing probe. |
 
 ## Hero summary
 
@@ -30,6 +30,8 @@ uv run lsp cross-check-guidellm \
 
 Files:
 - `artifacts/m2-qwen-l40s-modal-chat-short-20260423-r2/run.json`
+- `artifacts/m2-qwen-l40s-modal-chat-short-20260423-r2/m3_report.md`
+- `artifacts/m2-qwen-l40s-modal-chat-short-20260423-r2/m3_summary.md`
 - `artifacts/m2-qwen-l40s-modal-chat-short-20260423-r2/report.md`
 - `artifacts/m2-qwen-l40s-modal-chat-short-20260423-r2/scorecard.json`
 - `artifacts/m2-qwen-l40s-modal-chat-short-20260423-r2/metrics.parquet`

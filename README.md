@@ -3,21 +3,28 @@
 Compact LLM serving performance lab focused on reproducibility, artifact quality, and hiring-signal-first systems work.
 
 > [!WARNING]
-> Status as of 2026-04-23: Silver / artifact-backed M2 baseline available. This checkout contains a fresh real vLLM artifact pack at `artifacts/m2-qwen-l40s-modal-chat-short-20260423-r2/` plus a completed GuideLLM cross-check at `artifacts/m2-qwen-l40s-modal-chat-short-20260423-r2/guidellm/`.
+> Status as of 2026-04-23: Silver / M3 checkpoint complete. This checkout contains a fresh real vLLM artifact pack at `artifacts/m2-qwen-l40s-modal-chat-short-20260423-r2/`, a standalone M3 report at `artifacts/m2-qwen-l40s-modal-chat-short-20260423-r2/m3_report.md`, a concise result summary at `artifacts/m2-qwen-l40s-modal-chat-short-20260423-r2/m3_summary.md`, and a completed GuideLLM cross-check at `artifacts/m2-qwen-l40s-modal-chat-short-20260423-r2/guidellm/`.
 > Public claims must stay bounded to one Modal-hosted `L40S x1`, `Qwen/Qwen2.5-1.5B-Instruct`, and `chat_short` workload. The artifact records `git_dirty: true`, and the GuideLLM cross-check uses a synthetic token summary rather than exact trace replay.
 
-Current status: M2 has a fresh stored real baseline plus saved official-tool cross-check.
-The next required work order is M3 packaging quality; do not move to M4 until the M3 stop-and-package gate is complete.
+Current status: M3 Portfolio Checkpoint A is complete with a stored real baseline, standalone report, concise summary, and saved official-tool cross-check.
+The next required work order is M4 SGLang + PD baseline.
 
 ## Highlighted state
 
-- **Current hero artifact:** `artifacts/m2-qwen-l40s-modal-chat-short-20260423-r2/` with sibling GuideLLM output under `artifacts/m2-qwen-l40s-modal-chat-short-20260423-r2/guidellm/`.
+- **Current hero artifact:** `artifacts/m2-qwen-l40s-modal-chat-short-20260423-r2/` with [standalone report](artifacts/m2-qwen-l40s-modal-chat-short-20260423-r2/m3_report.md), [concise summary](artifacts/m2-qwen-l40s-modal-chat-short-20260423-r2/m3_summary.md), and sibling GuideLLM output under `artifacts/m2-qwen-l40s-modal-chat-short-20260423-r2/guidellm/`.
 - **What remains risky:** the stored hero artifact came from a dirty checkout, the GuideLLM cross-check uses a synthetic token summary, and Modal cold start can make a first probe time out before a later clean warm probe passes. The result is only one bounded baseline and does not support performance-win, routing, PD, regression, profiler, or production-readiness claims.
 
 ## Highlighted finding
 
 - **M2 baseline:** On `L40S x1 via modal` with `Qwen/Qwen2.5-1.5B-Instruct` and `chat_short`, the stored controller run completed `500/500` requests with p50/p95/p99 client latency `0.780 / 1.316 / 1.651 s` and `920` official `/metrics` rows with no required official metrics missing. The saved GuideLLM cross-check also completed `500/500` requests and reported median TTFT `187.2 ms`, p95 TTFT `266.3 ms`, and mean throughput `1.21 req/s`.
 - **Primary caveat:** the GuideLLM cross-check uses a synthetic token summary derived from the repo workload config rather than a byte-for-byte replay of the controller trace; the current hero artifact was generated from a dirty checkout; and Modal cold-start probe timeouts should be treated as warmup behavior only when a subsequent probe passes cleanly.
+
+## Reproduce The Hero Artifact
+
+```bash
+make reproduce RUN=m2-real REPRO_BACKEND=configs/backends/vllm_modal_m2_qwen_l40s.yaml REPRO_WORKLOAD=configs/workloads/chat_short.yaml REPRO_RUN_ID=m2-qwen-l40s-modal-chat-short-20260423-r2
+uv run lsp cross-check-guidellm --backend-config configs/backends/vllm_modal_m2_qwen_l40s.yaml --workload-config configs/workloads/chat_short.yaml --output-dir artifacts/m2-qwen-l40s-modal-chat-short-20260423-r2/guidellm --execute
+```
 
 ## Why this repo exists
 
@@ -222,7 +229,8 @@ make verify-m2
 Planned execution order lives in `docs/03-milestones.md`.
 M1 execution is complete.
 M2 has a fresh artifact-backed baseline.
-The next required stop is M3 packaging quality; do not begin M4 until that checkpoint is complete.
+M3 Portfolio Checkpoint A is complete.
+The next required stop is M4 SGLang + PD baseline.
 
 ## Public-sharing guidance
 

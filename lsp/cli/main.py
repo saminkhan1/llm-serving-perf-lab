@@ -19,6 +19,7 @@ from lsp.m2_scaffolding import (
     format_plan_json,
     probe_vllm_target,
 )
+from lsp.reporting import write_m3_report_outputs
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -94,6 +95,14 @@ def build_parser() -> argparse.ArgumentParser:
         help="Check whether repo config and local tools are ready for the final external M2 run.",
     )
     readiness_parser.add_argument("--backend-config", type=Path, required=True)
+
+    m3_report_parser = subparsers.add_parser(
+        "build-m3-report",
+        help="Build the M3 portfolio report and concise summary from a stored artifact.",
+    )
+    m3_report_parser.add_argument("--run-dir", type=Path, required=True)
+    m3_report_parser.add_argument("--report-path", type=Path, default=None)
+    m3_report_parser.add_argument("--summary-path", type=Path, default=None)
 
     return parser
 
@@ -200,6 +209,15 @@ def main(argv: list[str] | None = None) -> int:
         report = check_m2_readiness(backend)
         print(format_plan_json(report))
         return 0 if report["status"] == "ready" else 1
+
+    if args.command == "build-m3-report":
+        manifest = write_m3_report_outputs(
+            run_dir=args.run_dir,
+            report_path=args.report_path,
+            summary_path=args.summary_path,
+        )
+        print(format_plan_json(manifest))
+        return 0
 
     parser.error("unhandled command")
     return 2

@@ -5,8 +5,9 @@ BACKEND_CONFIG ?= configs/backends/vllm_dev.yaml
 UV_RUN = UV_CACHE_DIR=$(UV_CACHE_DIR) $(UV) run
 UV_SYNC = UV_CACHE_DIR=$(UV_CACHE_DIR) $(UV) sync --extra dev
 CLI = $(UV_RUN) python3 -m lsp.cli.main
+M3_RUN_DIR ?= artifacts/m2-qwen-l40s-modal-chat-short-20260423-r2
 
-.PHONY: install smoke smoke-guidellm validate-examples fake-run run reproduce test lint format-check typecheck verify-m0 verify-m1 verify-m2 check-m2-readiness probe-m2
+.PHONY: install smoke smoke-guidellm validate-examples fake-run run reproduce package-m3 test lint format-check typecheck verify-m0 verify-m1 verify-m2 check-m2-readiness probe-m2
 
 install:
 	$(UV_SYNC)
@@ -54,6 +55,9 @@ reproduce:
 	fi; \
 	echo "$$cmd"; \
 	eval "$$cmd"
+
+package-m3:
+	$(CLI) build-m3-report --run-dir $(M3_RUN_DIR)
 
 test:
 	$(UV_RUN) pytest -m "not gpu and not network"

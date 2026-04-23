@@ -13,11 +13,13 @@ If the answer is "no" for the current stage, downgrade the wording in:
 
 The repo is currently at Silver:
 - stored real M2 artifact pack present at `artifacts/m2-qwen-l40s-modal-chat-short-20260423-r2/`
+- M3 packaging outputs present at `artifacts/m2-qwen-l40s-modal-chat-short-20260423-r2/m3_report.md` and `artifacts/m2-qwen-l40s-modal-chat-short-20260423-r2/m3_summary.md`
 - completed GuideLLM cross-check present at `artifacts/m2-qwen-l40s-modal-chat-short-20260423-r2/guidellm/`
 - bounded measured claims are now safe for one Modal-hosted `L40S x1`, `Qwen/Qwen2.5-1.5B-Instruct`, and `chat_short` setup
 - `configs/backends/vllm_modal_example.yaml` remains a placeholder example, while `configs/backends/vllm_modal_m2_qwen_l40s.yaml` is the current concrete repo config for the stored Modal baseline
 - the current hero artifact records `git_dirty: true`, and the GuideLLM cross-check uses a synthetic token summary rather than exact trace replay
 - Modal cold-start probe timeouts are not failures by themselves, but the evidence path requires a subsequent clean probe before the benchmark run
+- the next required work order is M4 SGLang + PD baseline
 
 ## Stage gates
 

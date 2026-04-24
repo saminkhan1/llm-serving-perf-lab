@@ -16,14 +16,23 @@ The next required work order is M4 SGLang + PD baseline.
 
 ## Highlighted finding
 
-- **M2 baseline:** On `L40S x1 via modal` with `Qwen/Qwen2.5-1.5B-Instruct` and `chat_short`, the stored controller run completed `500/500` requests with p50/p95/p99 client latency `0.780 / 1.316 / 1.651 s` and `920` official `/metrics` rows with no required official metrics missing. The saved GuideLLM cross-check also completed `500/500` requests and reported median TTFT `187.2 ms`, p95 TTFT `266.3 ms`, and mean throughput `1.21 req/s`.
+- **M2 baseline:** On `L40S x1 via modal` with `Qwen/Qwen2.5-1.5B-Instruct` and `chat_short`, the stored controller run completed `500/500` requests with p50/p95/p99 client latency `0.780 / 1.316 / 1.651 s`, `420` official `/metrics` rows, `920` total metric rows, and no required official metrics missing. The saved GuideLLM cross-check also completed `500/500` requests and reported median TTFT `187.2 ms`, p95 TTFT `266.3 ms`, and mean throughput `1.21 req/s`.
 - **Primary caveat:** the GuideLLM cross-check uses a synthetic token summary derived from the repo workload config rather than a byte-for-byte replay of the controller trace; the current hero artifact was generated from a dirty checkout; and Modal cold-start probe timeouts should be treated as warmup behavior only when a subsequent probe passes cleanly.
 
 ## Reproduce The Hero Artifact
 
+Audit the stored artifact:
+
 ```bash
-make reproduce RUN=m2-real REPRO_BACKEND=configs/backends/vllm_modal_m2_qwen_l40s.yaml REPRO_WORKLOAD=configs/workloads/chat_short.yaml REPRO_RUN_ID=m2-qwen-l40s-modal-chat-short-20260423-r2
-uv run lsp cross-check-guidellm --backend-config configs/backends/vllm_modal_m2_qwen_l40s.yaml --workload-config configs/workloads/chat_short.yaml --output-dir artifacts/m2-qwen-l40s-modal-chat-short-20260423-r2/guidellm --execute
+uv run lsp validate-artifact artifacts/m2-qwen-l40s-modal-chat-short-20260423-r2
+```
+
+Produce a fresh equivalent run with a non-colliding run id:
+
+```bash
+RUN_ID=m2-qwen-l40s-modal-chat-short-repro-$(date +%Y%m%d-%H%M%S)
+make reproduce RUN=m2-real REPRO_BACKEND=configs/backends/vllm_modal_m2_qwen_l40s.yaml REPRO_WORKLOAD=configs/workloads/chat_short.yaml REPRO_RUN_ID="$RUN_ID"
+uv run lsp cross-check-guidellm --backend-config configs/backends/vllm_modal_m2_qwen_l40s.yaml --workload-config configs/workloads/chat_short.yaml --output-dir "artifacts/$RUN_ID/guidellm" --execute
 ```
 
 ## Why this repo exists
